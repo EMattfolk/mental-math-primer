@@ -18,10 +18,15 @@ Possible extensions
 
 ## Techincal specification
 
-The project will be built using [elm](https://elm-lang.org) (a functional web
-framework comparable to React) for the front-end and Flask for the back-end.
-The idea is that backend generates and verifies problems as well as saving
-progress.
+The project will be built using [Elm](https://elm-lang.org) (a functional web
+framework comparable to React) for the front-end and
+[Lamdera](https://lamdera.com/) for the backend. The application will be
+entirely written in Elm, both frontend and backend. I could create a backend in
+Flask and manage a database, but I have already done that several times already
+and I wanted to try something new. Lamdera is also a hosting service, which
+means the project will be easily available
+[here](https://mental-math-primer.lamdera.app/). The idea is that backend
+generates and verifies problems as well as saving progress.
 
 Additionally I will set up CI and possibly my own domain for the site.
 
