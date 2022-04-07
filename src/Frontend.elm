@@ -1,7 +1,9 @@
 module Frontend exposing (..)
 
-import Html exposing (div, text)
+import Css exposing (..)
 import Html.Events exposing (..)
+import Html.Styled exposing (button, div, text, toUnstyled)
+import Html.Styled.Attributes exposing (css)
 import Lamdera exposing (sendToBackend)
 import Types exposing (..)
 
@@ -19,7 +21,7 @@ app =
         , view =
             \model ->
                 { title = "Mental Math Primer"
-                , body = [ view model ]
+                , body = [ view model |> toUnstyled ]
                 }
         , subscriptions = \_ -> Sub.none
         , onUrlChange = \_ -> FrontendNoop
@@ -49,8 +51,51 @@ updateFromBackend msg model =
             ( { model | counter = newCounter, clientId = clientId }, Cmd.none )
 
 
-view : Model -> Html.Html FrontendMsg
-view model =
-    div [ onClick Increment ]
-        [ text ("hello " ++ String.fromInt model.counter)
+flexedDiv size direction attributes elements =
+    div
+        ([ css
+            [ displayFlex
+            , flex (int size)
+            , flexGrow (int 1)
+            , flexDirection direction
+            , alignItems center
+            , justifyContent center
+            ]
+         ]
+            ++ attributes
+        )
+        elements
+
+
+vdiv =
+    flexedDiv 1 column
+
+
+hdiv =
+    flexedDiv 1 row
+
+
+problemBox : String -> List String -> Html.Styled.Html FrontendMsg
+problemBox problemText options =
+    vdiv [] <|
+        [ vdiv [] [ text problemText ]
+        , hdiv [] <| List.map (\option -> button [] [ text option ]) options
         ]
+
+
+view : Model -> Html.Styled.Html FrontendMsg
+view _ =
+    vdiv []
+        [ Html.Styled.node "style" [] [ text bodyCss ]
+        , problemBox "1 + 1" [ "1", "2", "3" ]
+        ]
+
+
+bodyCss =
+    """
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    """
