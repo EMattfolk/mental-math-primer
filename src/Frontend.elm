@@ -1,6 +1,5 @@
 module Frontend exposing (..)
 
-import Browser
 import Html exposing (div, text)
 import Html.Events exposing (..)
 import Lamdera exposing (sendToBackend)
@@ -11,6 +10,7 @@ type alias Model =
     FrontendModel
 
 
+app : FrontendApp
 app =
     Lamdera.frontend
         { init = \_ _ -> init

@@ -8,6 +8,7 @@ type alias Model =
     BackendModel
 
 
+app : BackendApp
 app =
     Lamdera.backend
         { init = init
