@@ -24,6 +24,51 @@ init =
     ( { counter = 0 }, Cmd.none )
 
 
+permutations : Int -> ( Int, Int, Int )
+permutations i =
+    case i of
+        0 ->
+            ( 0, 1, 2 )
+
+        1 ->
+            ( 0, 2, 1 )
+
+        2 ->
+            ( 1, 0, 2 )
+
+        3 ->
+            ( 1, 2, 0 )
+
+        4 ->
+            ( 2, 0, 1 )
+
+        _ ->
+            ( 2, 1, 0 )
+
+
+permute : ( Int, Int, Int ) -> List Int -> List Int
+permute ( i0, i1, i2 ) list =
+    case list of
+        [ e0, e1, e2 ] ->
+            let
+                select =
+                    \i ->
+                        case i of
+                            0 ->
+                                e0
+
+                            1 ->
+                                e1
+
+                            _ ->
+                                e2
+            in
+            [ i0, i1, i2 ] |> List.map select
+
+        _ ->
+            []
+
+
 randomProblem : Generator Problem
 randomProblem =
     let
@@ -32,15 +77,22 @@ randomProblem =
 
         t2 =
             Random.int 1 5
+
+        permutation =
+            Random.int 0 5
     in
-    Random.map2
-        (\a b ->
+    Random.map3
+        (\a b p ->
             { statement = String.fromInt a ++ " + " ++ String.fromInt b
-            , choices = List.map String.fromInt [ a + b - 2, a + b, a + b + 2 ]
+            , choices =
+                [ a + b - 2, a + b, a + b + 2 ]
+                    |> permute (permutations p)
+                    |> List.map String.fromInt
             }
         )
         t1
         t2
+        permutation
 
 
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
