@@ -1,6 +1,7 @@
 module Backend exposing (app, init)
 
 import Lamdera exposing (ClientId, SessionId, broadcast, sendToFrontend)
+import Random exposing (Generator)
 import Types exposing (..)
 
 
@@ -21,6 +22,24 @@ app =
 init : ( Model, Cmd BackendMsg )
 init =
     ( { counter = 0 }, Cmd.none )
+
+
+randomProblem : Generator Problem
+randomProblem =
+    let
+        t1 =
+            Random.int 1 5
+
+        t2 =
+            Random.int 1 5
+
+        statement =
+            Random.map2 (\a b -> String.fromInt a ++ " + " ++ String.fromInt b) t1 t2
+
+        choices =
+            Random.map2 (\a b -> List.map String.fromInt [ a + b - 2, a + b, a + b + 2 ]) t1 t2
+    in
+    Random.map2 Problem statement choices
 
 
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
