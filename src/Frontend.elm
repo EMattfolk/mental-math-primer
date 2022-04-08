@@ -123,7 +123,7 @@ choiceButton isCorrect choice =
 
 problemBox : Problem -> Html FrontendMsg
 problemBox { statement, choices, correct } =
-    vdiv [] <|
+    vdiv []
         [ vdiv [] [ statementText statement ]
         , hdiv [] <|
             List.indexedMap
