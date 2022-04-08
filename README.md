@@ -2,7 +2,7 @@
 
 ## Functional specification
 
-This project is a single page webapp that would work similar to something like
+This project is a single page web-app that would work similar to something like
 [Mental Math Master](https://play.google.com/store/apps/details?id=com.fivedaysweekend.math&gl=US)
 on Google play.
 
@@ -16,7 +16,7 @@ Possible extensions
 - A leaderboard
 - Tips and tricks
 
-## Techincal specification
+## Technical specification
 
 The project will be built using [Elm](https://elm-lang.org) (a functional web
 framework comparable to React) for the front-end and
