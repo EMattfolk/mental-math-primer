@@ -31,14 +31,14 @@ app =
 
 init : ( Model, Cmd FrontendMsg )
 init =
-    ( { counter = 0, clientId = "" }, Cmd.none )
+    ( { problem = { statement = "", choices = [] }, clientId = "" }, Cmd.none )
 
 
 update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | counter = model.counter + 1 }, sendToBackend CounterIncremented )
+            ( model, sendToBackend CounterIncremented )
 
         FrontendNoop ->
             ( model, Cmd.none )
@@ -47,8 +47,11 @@ update msg model =
 updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
 updateFromBackend msg model =
     case msg of
-        CounterNewValue newCounter clientId ->
-            ( { model | counter = newCounter, clientId = clientId }, Cmd.none )
+        CounterNewValue _ clientId ->
+            ( { model | clientId = clientId }, Cmd.none )
+
+        SetProblem problem ->
+            ( { model | problem = problem }, Cmd.none )
 
 
 flexedDiv :
@@ -81,11 +84,11 @@ hdiv =
     flexedDiv 1 row
 
 
-problemBox : String -> List String -> Html FrontendMsg
-problemBox problemText options =
+problemBox : Problem -> Html FrontendMsg
+problemBox { statement, choices } =
     vdiv [] <|
-        [ vdiv [] [ text problemText ]
-        , hdiv [] <| List.map (\option -> button [] [ text option ]) options
+        [ vdiv [] [ text statement ]
+        , hdiv [] <| List.map (\option -> button [] [ text option ]) choices
         ]
 
 
@@ -93,7 +96,7 @@ view : Model -> Html FrontendMsg
 view model =
     vdiv []
         [ Html.Styled.node "style" [] [ text bodyCss ]
-        , problemBox "1 + 1" [ "1", "2", "3" ]
+        , problemBox model.problem
         ]
 
 

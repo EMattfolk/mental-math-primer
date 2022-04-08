@@ -27,7 +27,10 @@ update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
 update msg model =
     case msg of
         ClientConnected _ clientId ->
-            ( model, sendToFrontend clientId <| CounterNewValue model.counter clientId )
+            ( model
+            , sendToFrontend clientId <|
+                SetProblem { statement = "1 + 2", choices = [ "1", "3", "5" ] }
+            )
 
 
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )

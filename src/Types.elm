@@ -12,7 +12,7 @@ type alias BackendModel =
 
 
 type alias FrontendModel =
-    { counter : Int
+    { problem : Problem
     , clientId : String
     }
 
@@ -32,6 +32,7 @@ type BackendMsg
 
 type ToFrontend
     = CounterNewValue Int String
+    | SetProblem Problem
 
 
 type alias FrontendApp =
@@ -50,4 +51,10 @@ type alias BackendApp =
     , update : BackendMsg -> BackendModel -> ( BackendModel, Cmd BackendMsg )
     , updateFromFrontend : SessionId -> ClientId -> ToBackend -> BackendModel -> ( BackendModel, Cmd BackendMsg )
     , subscriptions : BackendModel -> Sub BackendMsg
+    }
+
+
+type alias Problem =
+    { statement : String
+    , choices : List String
     }
