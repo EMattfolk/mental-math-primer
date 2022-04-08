@@ -61,9 +61,9 @@ updateFromBackend msg model =
 flexedDiv :
     Int
     -> { compatible | value : String, flexDirection : Compatible }
-    -> List (Attribute msg)
-    -> List (Html msg)
-    -> Html msg
+    -> List (Attribute FrontendMsg)
+    -> List (Html FrontendMsg)
+    -> Html FrontendMsg
 flexedDiv size direction attributes elements =
     div
         (css
@@ -78,34 +78,56 @@ flexedDiv size direction attributes elements =
         elements
 
 
-vdiv : List (Attribute msg) -> List (Html msg) -> Html msg
+vdiv : List (Attribute FrontendMsg) -> List (Html FrontendMsg) -> Html FrontendMsg
 vdiv =
     flexedDiv 1 column
 
 
-hdiv : List (Attribute msg) -> List (Html msg) -> Html msg
+hdiv : List (Attribute FrontendMsg) -> List (Html FrontendMsg) -> Html FrontendMsg
 hdiv =
     flexedDiv 1 row
+
+
+statementText : String -> Html FrontendMsg
+statementText statement =
+    div
+        [ css
+            [ fontSize (em 4)
+            ]
+        ]
+        [ text statement
+        ]
+
+
+choiceButton : Bool -> String -> Html FrontendMsg
+choiceButton isCorrect choice =
+    button
+        [ onClick
+            (if isCorrect then
+                ProblemSolved
+
+             else
+                FrontendNoop
+            )
+        , css
+            [ borderRadius (em 10)
+            , width (em 2)
+            , height (em 2)
+            , fontSize (em 2)
+            , margin (em 1)
+            , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
+            ]
+        ]
+        [ text choice ]
 
 
 problemBox : Problem -> Html FrontendMsg
 problemBox { statement, choices, correct } =
     vdiv [] <|
-        [ vdiv [] [ text statement ]
+        [ vdiv [] [ statementText statement ]
         , hdiv [] <|
             List.indexedMap
-                (\i option ->
-                    button
-                        [ onClick
-                            (if i == correct then
-                                ProblemSolved
-
-                             else
-                                FrontendNoop
-                            )
-                        ]
-                        [ text option ]
-                )
+                (\i choice -> choiceButton (i == correct) choice)
                 choices
         ]
 
