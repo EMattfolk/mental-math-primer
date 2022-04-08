@@ -51,7 +51,7 @@ permutationToCorrect ( i0, i1, i2 ) =
     if i0 == 0 then
         0
 
-    else if i1 == 1 then
+    else if i1 == 0 then
         1
 
     else
@@ -97,7 +97,8 @@ randomProblem =
         (\a b p ->
             { statement = String.fromInt a ++ " + " ++ String.fromInt b
             , choices =
-                [ a + b - 2, a + b, a + b + 2 ]
+                -- The correct one is at index 0
+                [ a + b, a + b - 2, a + b + 2 ]
                     |> permute (permutation3 p)
                     |> List.map String.fromInt
             , correct = permutation3 p |> permutationToCorrect
