@@ -28,6 +28,7 @@ type ToBackend
 
 type BackendMsg
     = ClientConnected SessionId ClientId
+    | SendProblem ClientId Problem
 
 
 type ToFrontend

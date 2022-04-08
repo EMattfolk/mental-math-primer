@@ -47,8 +47,13 @@ update msg model =
     case msg of
         ClientConnected _ clientId ->
             ( model
+            , Random.generate (SendProblem clientId) randomProblem
+            )
+
+        SendProblem clientId problem ->
+            ( model
             , sendToFrontend clientId <|
-                SetProblem { statement = "1 + 2", choices = [ "1", "3", "5" ] }
+                SetProblem problem
             )
 
 
