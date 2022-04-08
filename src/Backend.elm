@@ -32,14 +32,15 @@ randomProblem =
 
         t2 =
             Random.int 1 5
-
-        statement =
-            Random.map2 (\a b -> String.fromInt a ++ " + " ++ String.fromInt b) t1 t2
-
-        choices =
-            Random.map2 (\a b -> List.map String.fromInt [ a + b - 2, a + b, a + b + 2 ]) t1 t2
     in
-    Random.map2 Problem statement choices
+    Random.map2
+        (\a b ->
+            { statement = String.fromInt a ++ " + " ++ String.fromInt b
+            , choices = List.map String.fromInt [ a + b - 2, a + b, a + b + 2 ]
+            }
+        )
+        t1
+        t2
 
 
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
