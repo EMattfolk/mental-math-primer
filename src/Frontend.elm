@@ -1,9 +1,9 @@
 module Frontend exposing (..)
 
 import Css exposing (..)
-import Html.Events exposing (..)
 import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
+import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
 import Types exposing (..)
 
@@ -31,14 +31,18 @@ app =
 
 init : ( Model, Cmd FrontendMsg )
 init =
-    ( { problem = { statement = "", choices = [] }, clientId = "" }, Cmd.none )
+    ( { problem = { statement = "", choices = [], correct = 0 }
+      , clientId = ""
+      }
+    , Cmd.none
+    )
 
 
 update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
-        Increment ->
-            ( model, sendToBackend CounterIncremented )
+        ProblemSolved ->
+            ( model, sendToBackend GetNewProblem )
 
         FrontendNoop ->
             ( model, Cmd.none )
@@ -85,10 +89,24 @@ hdiv =
 
 
 problemBox : Problem -> Html FrontendMsg
-problemBox { statement, choices } =
+problemBox { statement, choices, correct } =
     vdiv [] <|
         [ vdiv [] [ text statement ]
-        , hdiv [] <| List.map (\option -> button [] [ text option ]) choices
+        , hdiv [] <|
+            List.indexedMap
+                (\i option ->
+                    button
+                        [ onClick
+                            (if i == correct then
+                                ProblemSolved
+
+                             else
+                                FrontendNoop
+                            )
+                        ]
+                        [ text option ]
+                )
+                choices
         ]
 
 

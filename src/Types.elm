@@ -18,12 +18,12 @@ type alias FrontendModel =
 
 
 type FrontendMsg
-    = Increment
+    = ProblemSolved
     | FrontendNoop
 
 
 type ToBackend
-    = CounterIncremented
+    = GetNewProblem
 
 
 type BackendMsg
@@ -58,4 +58,5 @@ type alias BackendApp =
 type alias Problem =
     { statement : String
     , choices : List String
+    , correct : Int
     }

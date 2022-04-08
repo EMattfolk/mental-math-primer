@@ -24,8 +24,8 @@ init =
     ( { counter = 0 }, Cmd.none )
 
 
-permutations : Int -> ( Int, Int, Int )
-permutations i =
+permutation3 : Int -> ( Int, Int, Int )
+permutation3 i =
     case i of
         0 ->
             ( 0, 1, 2 )
@@ -44,6 +44,18 @@ permutations i =
 
         _ ->
             ( 2, 1, 0 )
+
+
+permutationToCorrect : ( Int, Int, Int ) -> Int
+permutationToCorrect ( i0, i1, i2 ) =
+    if i0 == 0 then
+        0
+
+    else if i1 == 1 then
+        1
+
+    else
+        2
 
 
 permute : ( Int, Int, Int ) -> List Int -> List Int
@@ -86,8 +98,9 @@ randomProblem =
             { statement = String.fromInt a ++ " + " ++ String.fromInt b
             , choices =
                 [ a + b - 2, a + b, a + b + 2 ]
-                    |> permute (permutations p)
+                    |> permute (permutation3 p)
                     |> List.map String.fromInt
+            , correct = permutation3 p |> permutationToCorrect
             }
         )
         t1
@@ -113,13 +126,9 @@ update msg model =
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend _ clientId msg model =
     case msg of
-        CounterIncremented ->
-            let
-                newCounter =
-                    model.counter + 1
-            in
-            ( { model | counter = newCounter }
-            , broadcast (CounterNewValue newCounter clientId)
+        GetNewProblem ->
+            ( model
+            , Random.generate (SendProblem clientId) randomProblem
             )
 
 
