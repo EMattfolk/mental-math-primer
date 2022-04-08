@@ -2,7 +2,7 @@ module Frontend exposing (..)
 
 import Css exposing (..)
 import Html.Events exposing (..)
-import Html.Styled exposing (button, div, text, toUnstyled)
+import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Lamdera exposing (sendToBackend)
 import Types exposing (..)
@@ -51,31 +51,37 @@ updateFromBackend msg model =
             ( { model | counter = newCounter, clientId = clientId }, Cmd.none )
 
 
+flexedDiv :
+    Int
+    -> { compatible | value : String, flexDirection : Compatible }
+    -> List (Attribute msg)
+    -> List (Html msg)
+    -> Html msg
 flexedDiv size direction attributes elements =
     div
-        ([ css
+        (css
             [ displayFlex
             , flex (int size)
-            , flexGrow (int 1)
             , flexDirection direction
             , alignItems center
             , justifyContent center
             ]
-         ]
-            ++ attributes
+            :: attributes
         )
         elements
 
 
+vdiv : List (Attribute msg) -> List (Html msg) -> Html msg
 vdiv =
     flexedDiv 1 column
 
 
+hdiv : List (Attribute msg) -> List (Html msg) -> Html msg
 hdiv =
     flexedDiv 1 row
 
 
-problemBox : String -> List String -> Html.Styled.Html FrontendMsg
+problemBox : String -> List String -> Html FrontendMsg
 problemBox problemText options =
     vdiv [] <|
         [ vdiv [] [ text problemText ]
@@ -83,14 +89,15 @@ problemBox problemText options =
         ]
 
 
-view : Model -> Html.Styled.Html FrontendMsg
-view _ =
+view : Model -> Html FrontendMsg
+view model =
     vdiv []
         [ Html.Styled.node "style" [] [ text bodyCss ]
         , problemBox "1 + 1" [ "1", "2", "3" ]
         ]
 
 
+bodyCss : String
 bodyCss =
     """
     body {
