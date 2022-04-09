@@ -58,10 +58,14 @@ update msg model =
             ( { model
                 | problem =
                     { problem
-                        | remainingTime = problem.remainingTime - 0.1
+                        | remainingTime = max (problem.remainingTime - 0.1) 0.0
                     }
               }
-            , Cmd.none
+            , if problem.remainingTime == 0 then
+                sendToBackend GetNewProblem
+
+              else
+                Cmd.none
             )
 
         FrontendNoop ->
@@ -119,6 +123,17 @@ statementText statement =
         ]
 
 
+timerText : Float -> Html FrontendMsg
+timerText remainingTime =
+    div
+        [ css
+            [ fontSize (em 2)
+            ]
+        ]
+        [ text <| (String.fromInt << floor) remainingTime
+        ]
+
+
 choiceButton : Bool -> String -> Html FrontendMsg
 choiceButton isCorrect choice =
     button
@@ -145,7 +160,7 @@ problemBox : Problem -> Html FrontendMsg
 problemBox { statement, choices, correct, remainingTime } =
     vdiv []
         [ vdiv [] [ statementText statement ]
-        , text <| (String.fromInt << floor) remainingTime
+        , timerText remainingTime
         , hdiv [] <|
             List.indexedMap
                 (\i choice -> choiceButton (i == correct) choice)
