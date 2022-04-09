@@ -1,6 +1,6 @@
 module Backend exposing (app, init)
 
-import Lamdera exposing (ClientId, SessionId, broadcast, sendToFrontend)
+import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import Random exposing (Generator)
 import Types exposing (..)
 
@@ -102,6 +102,7 @@ randomProblem =
                     |> permute (permutation3 p)
                     |> List.map String.fromInt
             , correct = permutation3 p |> permutationToCorrect
+            , remainingTime = 9.999 -- Should be 10, but we avoid flicker this way
             }
         )
         t1

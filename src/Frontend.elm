@@ -5,6 +5,7 @@ import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
+import Time
 import Types exposing (..)
 
 
@@ -23,7 +24,7 @@ app =
                 { title = "Mental Math Primer"
                 , body = [ view model |> toUnstyled ]
                 }
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         , onUrlChange = \_ -> FrontendNoop
         , onUrlRequest = \_ -> FrontendNoop
         }
@@ -31,7 +32,12 @@ app =
 
 init : ( Model, Cmd FrontendMsg )
 init =
-    ( { problem = { statement = "", choices = [], correct = 0 }
+    ( { problem =
+            { statement = ""
+            , choices = []
+            , correct = 0
+            , remainingTime = 10.0
+            }
       , clientId = ""
       }
     , Cmd.none
@@ -43,6 +49,20 @@ update msg model =
     case msg of
         ProblemSolved ->
             ( model, sendToBackend GetNewProblem )
+
+        Tick time ->
+            let
+                { problem } =
+                    model
+            in
+            ( { model
+                | problem =
+                    { problem
+                        | remainingTime = problem.remainingTime - 0.1
+                    }
+              }
+            , Cmd.none
+            )
 
         FrontendNoop ->
             ( model, Cmd.none )
@@ -122,9 +142,10 @@ choiceButton isCorrect choice =
 
 
 problemBox : Problem -> Html FrontendMsg
-problemBox { statement, choices, correct } =
+problemBox { statement, choices, correct, remainingTime } =
     vdiv []
         [ vdiv [] [ statementText statement ]
+        , text <| (String.fromInt << floor) remainingTime
         , hdiv [] <|
             List.indexedMap
                 (\i choice -> choiceButton (i == correct) choice)
@@ -149,3 +170,10 @@ bodyCss =
         height: 100vh;
     }
     """
+
+
+subscriptions : model -> Sub FrontendMsg
+subscriptions _ =
+    Sub.batch
+        [ Time.every 100 Tick
+        ]

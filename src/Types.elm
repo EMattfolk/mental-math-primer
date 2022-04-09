@@ -3,6 +3,7 @@ module Types exposing (..)
 import Browser
 import Browser.Navigation
 import Lamdera exposing (ClientId, SessionId)
+import Time
 import Url exposing (Url)
 
 
@@ -19,6 +20,7 @@ type alias FrontendModel =
 
 type FrontendMsg
     = ProblemSolved
+    | Tick Time.Posix
     | FrontendNoop
 
 
@@ -59,4 +61,5 @@ type alias Problem =
     { statement : String
     , choices : List String
     , correct : Int
+    , remainingTime : Float
     }
