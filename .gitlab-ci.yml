@@ -1,4 +1,4 @@
-publish:
+bulid:
   image: node:latest
   stage: test
   rules:
@@ -11,6 +11,7 @@ publish:
     - chmod a+x lamdera
 
     # Install dependencies
+    - apt update
     - apt install libtinfo5
     - npm ci
     - npx elm-tooling install
