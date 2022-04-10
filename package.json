@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "elm-tooling": "^1.7.0"
+  }
+}
