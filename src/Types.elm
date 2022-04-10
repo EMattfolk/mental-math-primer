@@ -8,7 +8,9 @@ import Url exposing (Url)
 
 
 type alias BackendModel =
-    { counter : Int
+    { progress :
+        { addSub : Maybe Difficulty
+        }
     }
 
 
@@ -34,8 +36,7 @@ type BackendMsg
 
 
 type ToFrontend
-    = CounterNewValue Int String
-    | SetProblem Problem
+    = SetProblem Problem
 
 
 type alias FrontendApp =
@@ -63,3 +64,16 @@ type alias Problem =
     , correct : Int
     , remainingTime : Float
     }
+
+
+
+--type ProblemType
+--    = AddSub
+
+
+type Difficulty
+    = Trivial
+    | Easy
+    | Medium
+    | Hard
+    | Impossible

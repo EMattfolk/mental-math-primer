@@ -50,7 +50,7 @@ update msg model =
         ProblemSolved ->
             ( model, sendToBackend GetNewProblem )
 
-        Tick time ->
+        Tick _ ->
             let
                 { problem } =
                     model
@@ -75,9 +75,6 @@ update msg model =
 updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
 updateFromBackend msg model =
     case msg of
-        CounterNewValue _ clientId ->
-            ( { model | clientId = clientId }, Cmd.none )
-
         SetProblem problem ->
             ( { model | problem = problem }, Cmd.none )
 
