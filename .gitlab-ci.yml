@@ -1,0 +1,20 @@
+publish:
+  image: node:latest
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_REF_NAME =~ /^v\d+\.\d+\.\d+.*$/
+      changes:
+        - package.json
+  script:
+    # Install lamdera
+    - curl https://static.lamdera.com/bin/linux/lamdera -o lamdera
+    - chmod a+x lamdera
+
+    # Install dependencies
+    - npm ci
+    - npx elm-tooling install
+
+    # Build, test and formatting
+    - ./lamdera make src/Frontend.elm
+    - npx elm-test-rs
+    - npx elm-format --validate src tests
