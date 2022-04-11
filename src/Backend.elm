@@ -86,24 +86,37 @@ permute ( i0, i1, i2 ) list =
             []
 
 
+offsets : Random.Generator ( Int, Int )
+offsets =
+    Random.pair (Random.int -5 5) (Random.int -5 5)
+        |> Random.andThen
+            (\( o1, o2 ) ->
+                if o1 == o2 || o1 == 0 || o2 == 0 then
+                    Random.lazy (\_ -> offsets)
+
+                else
+                    Random.constant ( o1, o2 )
+            )
+
+
 randomProblem : Generator Problem
 randomProblem =
     let
         t1 =
-            Random.int 1 5
+            Random.int 1 15
 
         t2 =
-            Random.int 1 5
+            Random.int 1 15
 
         permutation =
             Random.int 0 5
     in
-    Random.map3
-        (\a b p ->
+    Random.map4
+        (\a b p ( o1, o2 ) ->
             { statement = String.fromInt a ++ " + " ++ String.fromInt b
             , choices =
                 -- The correct one is at index 0
-                [ a + b, a + b - 2, a + b + 2 ]
+                List.map2 (+) [ a + b, a + b, a + b ] [ 0, o1, o2 ]
                     |> permute (permutation3 p)
                     |> List.map String.fromInt
             , correct = permutation3 p |> permutationToCorrect
@@ -113,6 +126,7 @@ randomProblem =
         t1
         t2
         permutation
+        offsets
 
 
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
