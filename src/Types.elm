@@ -1,7 +1,7 @@
 module Types exposing (..)
 
 import Browser
-import Browser.Navigation
+import Browser.Navigation exposing (Key)
 import Lamdera exposing (ClientId, SessionId)
 import Time
 import Url exposing (Url)
@@ -17,6 +17,10 @@ type alias BackendModel =
 type alias FrontendModel =
     { problem : Problem
     , clientId : String
+    , navigation :
+        { url : Url
+        , key : Key
+        }
     }
 
 
@@ -24,6 +28,8 @@ type FrontendMsg
     = ProblemSolved
     | Tick Time.Posix
     | FrontendNoop
+    | PushUrl String
+    | UrlChanged Url
 
 
 type ToBackend
@@ -40,7 +46,7 @@ type ToFrontend
 
 
 type alias FrontendApp =
-    { init : Url -> Browser.Navigation.Key -> ( FrontendModel, Cmd FrontendMsg )
+    { init : Url -> Key -> ( FrontendModel, Cmd FrontendMsg )
     , view : FrontendModel -> Browser.Document FrontendMsg
     , update : FrontendMsg -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
     , updateFromBackend : ToFrontend -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )

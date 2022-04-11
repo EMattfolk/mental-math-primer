@@ -1,12 +1,15 @@
 module Frontend exposing (..)
 
+import Browser.Navigation exposing (Key, pushUrl)
 import Css exposing (..)
 import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
+import Navigation exposing (toRoute)
 import Time
 import Types exposing (..)
+import Url
 
 
 type alias Model =
@@ -16,7 +19,7 @@ type alias Model =
 app : FrontendApp
 app =
     Lamdera.frontend
-        { init = \_ _ -> init
+        { init = init
         , update = update
         , updateFromBackend = updateFromBackend
         , view =
@@ -25,13 +28,13 @@ app =
                 , body = [ view model |> toUnstyled ]
                 }
         , subscriptions = subscriptions
-        , onUrlChange = \_ -> FrontendNoop
+        , onUrlChange = UrlChanged
         , onUrlRequest = \_ -> FrontendNoop
         }
 
 
-init : ( Model, Cmd FrontendMsg )
-init =
+init : Url.Url -> Key -> ( Model, Cmd FrontendMsg )
+init url key =
     ( { problem =
             { statement = ""
             , choices = []
@@ -39,6 +42,10 @@ init =
             , remainingTime = 10.0
             }
       , clientId = ""
+      , navigation =
+            { url = url
+            , key = key
+            }
       }
     , Cmd.none
     )
@@ -66,6 +73,23 @@ update msg model =
 
               else
                 Cmd.none
+            )
+
+        PushUrl string ->
+            ( model, pushUrl model.navigation.key string )
+
+        UrlChanged url ->
+            let
+                { navigation } =
+                    model
+            in
+            ( { model
+                | navigation =
+                    { navigation
+                        | url = url
+                    }
+              }
+            , Cmd.none
             )
 
         FrontendNoop ->
@@ -165,11 +189,31 @@ problemBox { statement, choices, correct, remainingTime } =
         ]
 
 
+menuView : Model -> Html FrontendMsg
+menuView _ =
+    div [ onClick (PushUrl "problem") ]
+        [ text "menu"
+        ]
+
+
+problemView : Model -> Html FrontendMsg
+problemView model =
+    problemBox model.problem
+
+
 view : Model -> Html FrontendMsg
 view model =
     vdiv []
         [ Html.Styled.node "style" [] [ text bodyCss ]
-        , problemBox model.problem
+        , case toRoute model.navigation.url of
+            Navigation.Home ->
+                menuView model
+
+            Navigation.Problem ->
+                problemView model
+
+            Navigation.NotFound ->
+                text "404: Page not found!"
         ]
 
 
