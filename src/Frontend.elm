@@ -191,8 +191,25 @@ problemBox { statement, choices, correct, remainingTime } =
 
 menuView : Model -> Html FrontendMsg
 menuView _ =
-    div [ onClick (PushUrl "problem") ]
-        [ text "menu"
+    let
+        listItem : String -> String -> Html FrontendMsg
+        listItem path title =
+            button
+                [ onClick (PushUrl path)
+                , css
+                    [ fontSize (em 2)
+                    ]
+                ]
+                [ text title ]
+    in
+    vdiv []
+        [ div
+            [ css
+                [ fontSize (em 3)
+                ]
+            ]
+            [ text "Mental Math Primer" ]
+        , listItem "problem" "+-"
         ]
 
 
