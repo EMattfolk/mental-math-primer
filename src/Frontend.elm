@@ -1,6 +1,6 @@
 module Frontend exposing (..)
 
-import Browser.Navigation exposing (Key, pushUrl)
+import Browser.Navigation exposing (Key, back, pushUrl)
 import Css exposing (..)
 import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
@@ -56,8 +56,13 @@ update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
         ProblemSolved ->
-            ( { model | solvedProblems = model.solvedProblems + 1 }
-            , sendToBackend GetNewProblem
+            -- hack
+            ( { model | solvedProblems = modBy 10 (model.solvedProblems + 1) }
+            , if model.solvedProblems == 9 then
+                back model.navigation.key 1
+
+              else
+                sendToBackend GetNewProblem
             )
 
         Tick _ ->
