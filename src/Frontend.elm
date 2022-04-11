@@ -90,7 +90,12 @@ update msg model =
             )
 
         PushUrl string ->
-            ( model, pushUrl model.navigation.key string )
+            ( model
+            , Cmd.batch
+                [ pushUrl model.navigation.key string
+                , sendToBackend GetNewProblem
+                ]
+            )
 
         UrlChanged url ->
             let
@@ -102,8 +107,9 @@ update msg model =
                     { navigation
                         | url = url
                     }
+                , solvedProblems = 0
               }
-            , Cmd.none
+            , sendToBackend GetNewProblem
             )
 
         FrontendNoop ->
