@@ -16,6 +16,7 @@ type alias BackendModel =
 
 type alias FrontendModel =
     { problem : Problem
+    , solvedProblems : Int
     , clientId : String
     , navigation :
         { url : Url

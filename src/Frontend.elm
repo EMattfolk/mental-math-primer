@@ -41,6 +41,7 @@ init url key =
             , correct = 0
             , remainingTime = 10.0
             }
+      , solvedProblems = 0
       , clientId = ""
       , navigation =
             { url = url
@@ -55,7 +56,9 @@ update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
         ProblemSolved ->
-            ( model, sendToBackend GetNewProblem )
+            ( { model | solvedProblems = model.solvedProblems + 1 }
+            , sendToBackend GetNewProblem
+            )
 
         Tick _ ->
             let
@@ -67,6 +70,12 @@ update msg model =
                     { problem
                         | remainingTime = max (problem.remainingTime - 0.1) 0.0
                     }
+                , solvedProblems =
+                    if problem.remainingTime == 0 then
+                        0
+
+                    else
+                        model.solvedProblems
               }
             , if problem.remainingTime == 0 then
                 sendToBackend GetNewProblem
@@ -144,6 +153,20 @@ statementText statement =
         ]
 
 
+solvedDots : Int -> Html FrontendMsg
+solvedDots solvedProblems =
+    div
+        [ css
+            [ fontSize (em 2)
+            ]
+        ]
+        [ text
+            (String.repeat (min solvedProblems 10) "⚫"
+                ++ String.repeat (10 - solvedProblems) "⚪"
+            )
+        ]
+
+
 timerText : Float -> Html FrontendMsg
 timerText remainingTime =
     div
@@ -177,12 +200,13 @@ choiceButton isCorrect choice =
         [ text choice ]
 
 
-problemBox : Problem -> Html FrontendMsg
-problemBox { statement, choices, correct, remainingTime } =
+problemBox : Problem -> Int -> Html FrontendMsg
+problemBox { statement, choices, correct, remainingTime } solvedProblems =
     vdiv []
-        [ vdiv [] [ statementText statement ]
+        [ vdiv [ css [ flex (int 2) ] ] [ statementText statement ]
+        , vdiv [] [ solvedDots solvedProblems ]
         , timerText remainingTime
-        , hdiv [] <|
+        , hdiv [ css [ flex (int 2) ] ] <|
             List.indexedMap
                 (\i choice -> choiceButton (i == correct) choice)
                 choices
@@ -215,7 +239,7 @@ menuView _ =
 
 problemView : Model -> Html FrontendMsg
 problemView model =
-    problemBox model.problem
+    problemBox model.problem model.solvedProblems
 
 
 view : Model -> Html FrontendMsg
