@@ -95,26 +95,24 @@ update msg model =
             )
 
         PushRoute route ->
-            ( model
-            , Cmd.batch
-                [ pushRoute model.navigation.key route
-                , sendToBackend <| GetNewProblem (getDifficulty model)
-                ]
-            )
+            ( model, pushRoute model.navigation.key route )
 
         UrlChanged url ->
             let
                 { navigation } =
                     model
-            in
-            ( { model
-                | navigation =
-                    { navigation
-                        | url = url
+
+                newModel =
+                    { model
+                        | navigation =
+                            { navigation
+                                | url = url
+                            }
+                        , solvedProblems = 0
                     }
-                , solvedProblems = 0
-              }
-            , sendToBackend <| GetNewProblem (getDifficulty model)
+            in
+            ( newModel
+            , sendToBackend <| GetNewProblem (getDifficulty newModel)
             )
 
         FrontendNoop ->
