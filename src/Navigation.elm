@@ -1,5 +1,6 @@
-module Navigation exposing (Route(..), toRoute)
+module Navigation exposing (Route(..), pushRoute, toRoute)
 
+import Browser.Navigation exposing (Key, pushUrl)
 import Url exposing (Url)
 import Url.Parser exposing (Parser, map, oneOf, parse, s, top)
 
@@ -22,3 +23,17 @@ toRoute : Url -> Route
 toRoute url =
     parse route url
         |> Maybe.withDefault NotFound
+
+
+pushRoute : Key -> Route -> Cmd msg
+pushRoute key r =
+    pushUrl key <|
+        case r of
+            Home ->
+                "/"
+
+            Problem ->
+                "/problem"
+
+            NotFound ->
+                "/404"

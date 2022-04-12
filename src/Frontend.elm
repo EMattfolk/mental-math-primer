@@ -1,12 +1,12 @@
 module Frontend exposing (..)
 
-import Browser.Navigation exposing (Key, back, pushUrl)
+import Browser.Navigation exposing (Key, back)
 import Css exposing (..)
 import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
-import Navigation exposing (toRoute)
+import Navigation exposing (Route, pushRoute, toRoute)
 import Time
 import Types exposing (..)
 import Url
@@ -93,10 +93,10 @@ update msg model =
                 Cmd.none
             )
 
-        PushUrl string ->
+        PushRoute route ->
             ( model
             , Cmd.batch
-                [ pushUrl model.navigation.key string
+                [ pushRoute model.navigation.key route
                 , sendToBackend GetNewProblem
                 ]
             )
@@ -231,24 +231,29 @@ problemBox { statement, choices, correct, remainingTime } solvedProblems =
 menuView : Model -> Html FrontendMsg
 menuView _ =
     let
-        listItem : String -> String -> Html FrontendMsg
-        listItem path title =
-            button
-                [ onClick (PushUrl path)
-                , css
+        listItem : Route -> String -> Html FrontendMsg
+        listItem route title =
+            hdiv
+                [ css
                     [ fontSize (em 2)
                     ]
                 ]
-                [ text title ]
+                [ text title
+                , button [ onClick (PushRoute route) ] [ text "Trivial" ]
+                , button [ onClick (PushRoute route) ] [ text "Easy" ]
+                , button [ onClick (PushRoute route) ] [ text "Medium" ]
+                , button [ onClick (PushRoute route) ] [ text "Hard" ]
+                , button [ onClick (PushRoute route) ] [ text "Impossible" ]
+                ]
     in
     vdiv []
-        [ div
+        [ hdiv
             [ css
                 [ fontSize (em 3)
                 ]
             ]
             [ text "Mental Math Primer" ]
-        , listItem "problem" "+-"
+        , listItem Navigation.Problem "+-"
         ]
 
 

@@ -3,6 +3,7 @@ module Types exposing (..)
 import Browser
 import Browser.Navigation exposing (Key)
 import Lamdera exposing (ClientId, SessionId)
+import Navigation exposing (Route)
 import Time
 import Url exposing (Url)
 
@@ -29,7 +30,7 @@ type FrontendMsg
     = ProblemSolved
     | Tick Time.Posix
     | FrontendNoop
-    | PushUrl String
+    | PushRoute Route
     | UrlChanged Url
 
 
