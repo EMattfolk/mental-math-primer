@@ -37,6 +37,15 @@ eval fragment =
 toString : Fragment -> String
 toString fragment =
     case fragment of
+        Addition f1 (Constant c) ->
+            toString f1
+                ++ (if c < 0 then
+                        " - " ++ String.fromInt -c
+
+                    else
+                        " + " ++ String.fromInt c
+                   )
+
         Addition f1 f2 ->
             toString f1 ++ " + " ++ toString f2
 
@@ -69,34 +78,37 @@ toProblemGenerator fragment =
 randomProblem : Difficulty -> Generator Problem
 randomProblem difficulty =
     let
-        t1 =
-            Random.int 1
-                (case difficulty of
-                    Trivial ->
-                        15
+        n =
+            case difficulty of
+                Trivial ->
+                    Random.int 1 15
 
-                    Easy ->
-                        999
+                Easy ->
+                    Random.andThen identity <|
+                        Random.weighted
+                            ( 0.75, Random.int 1 15 )
+                            [ ( 0.25, Random.int -15 -1 ) ]
 
-                    _ ->
-                        -100000
-                )
+                Medium ->
+                    Random.andThen identity <|
+                        Random.weighted
+                            ( 0.75, Random.int 1 50 )
+                            [ ( 0.25, Random.int -50 -1 ) ]
 
-        t2 =
-            Random.int 1
-                (case difficulty of
-                    Trivial ->
-                        15
+                Hard ->
+                    Random.andThen identity <|
+                        Random.weighted
+                            ( 0.75, Random.int 1 150 )
+                            [ ( 0.25, Random.int -150 -1 ) ]
 
-                    Easy ->
-                        999
-
-                    _ ->
-                        -100000
-                )
+                Impossible ->
+                    Random.andThen identity <|
+                        Random.weighted
+                            ( 0.75, Random.int 1 500 )
+                            [ ( 0.25, Random.int -500 -1 ) ]
 
         fragment =
-            Random.map2 (\a b -> Addition (Constant a) (Constant b)) t1 t2
+            Random.map2 (\a b -> Addition (Constant a) (Constant b)) n n
     in
     fragment
         |> Random.andThen toProblemGenerator
