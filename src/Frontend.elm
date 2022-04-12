@@ -48,7 +48,11 @@ init url key =
             , key = key
             }
       }
-    , Cmd.none
+    , if toRoute url == Navigation.Problem then
+        sendToBackend GetNewProblem
+
+      else
+        Cmd.none
     )
 
 

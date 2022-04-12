@@ -33,9 +33,10 @@ init =
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
 update msg model =
     case msg of
-        ClientConnected _ clientId ->
+        ClientConnected _ _ ->
+            -- FIXME: This should probably do something
             ( model
-            , Random.generate (SendProblem clientId) randomProblem
+            , Cmd.none
             )
 
         SendProblem clientId problem ->
