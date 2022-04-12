@@ -6,7 +6,7 @@ import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
-import Navigation exposing (Route, pushRoute, toRoute)
+import Navigation exposing (pushRoute, toRoute)
 import Time
 import Types exposing (..)
 import Url
@@ -48,11 +48,12 @@ init url key =
             , key = key
             }
       }
-    , if toRoute url == Navigation.Problem then
-        sendToBackend GetNewProblem
+    , case toRoute url of
+        ProblemPage difficulty ->
+            sendToBackend (GetNewProblem difficulty)
 
-      else
-        Cmd.none
+        _ ->
+            Cmd.none
     )
 
 
@@ -66,7 +67,7 @@ update msg model =
                 back model.navigation.key 1
 
               else
-                sendToBackend GetNewProblem
+                sendToBackend <| GetNewProblem (getDifficulty model)
             )
 
         Tick _ ->
@@ -87,7 +88,7 @@ update msg model =
                         model.solvedProblems
               }
             , if problem.remainingTime == 0 then
-                sendToBackend GetNewProblem
+                sendToBackend <| GetNewProblem (getDifficulty model)
 
               else
                 Cmd.none
@@ -97,7 +98,7 @@ update msg model =
             ( model
             , Cmd.batch
                 [ pushRoute model.navigation.key route
-                , sendToBackend GetNewProblem
+                , sendToBackend <| GetNewProblem (getDifficulty model)
                 ]
             )
 
@@ -113,7 +114,7 @@ update msg model =
                     }
                 , solvedProblems = 0
               }
-            , sendToBackend GetNewProblem
+            , sendToBackend <| GetNewProblem (getDifficulty model)
             )
 
         FrontendNoop ->
@@ -125,6 +126,16 @@ updateFromBackend msg model =
     case msg of
         SetProblem problem ->
             ( { model | problem = problem }, Cmd.none )
+
+
+getDifficulty : Model -> Difficulty
+getDifficulty model =
+    case toRoute model.navigation.url of
+        ProblemPage difficulty ->
+            difficulty
+
+        _ ->
+            Trivial
 
 
 flexedDiv :
@@ -231,7 +242,7 @@ problemBox { statement, choices, correct, remainingTime } solvedProblems =
 menuView : Model -> Html FrontendMsg
 menuView _ =
     let
-        listItem : Route -> String -> Html FrontendMsg
+        listItem : (Difficulty -> Route) -> String -> Html FrontendMsg
         listItem route title =
             hdiv
                 [ css
@@ -239,11 +250,11 @@ menuView _ =
                     ]
                 ]
                 [ text title
-                , button [ onClick (PushRoute route) ] [ text "Trivial" ]
-                , button [ onClick (PushRoute route) ] [ text "Easy" ]
-                , button [ onClick (PushRoute route) ] [ text "Medium" ]
-                , button [ onClick (PushRoute route) ] [ text "Hard" ]
-                , button [ onClick (PushRoute route) ] [ text "Impossible" ]
+                , button [ onClick (PushRoute <| route Trivial) ] [ text "Trivial" ]
+                , button [ onClick (PushRoute <| route Easy) ] [ text "Easy" ]
+                , button [ onClick (PushRoute <| route Medium) ] [ text "Medium" ]
+                , button [ onClick (PushRoute <| route Hard) ] [ text "Hard" ]
+                , button [ onClick (PushRoute <| route Impossible) ] [ text "Impossible" ]
                 ]
     in
     vdiv []
@@ -253,7 +264,7 @@ menuView _ =
                 ]
             ]
             [ text "Mental Math Primer" ]
-        , listItem Navigation.Problem "+-"
+        , listItem ProblemPage "+-"
         ]
 
 
@@ -267,13 +278,13 @@ view model =
     vdiv []
         [ Html.Styled.node "style" [] [ text bodyCss ]
         , case toRoute model.navigation.url of
-            Navigation.Home ->
+            Home ->
                 menuView model
 
-            Navigation.Problem ->
+            ProblemPage _ ->
                 problemView model
 
-            Navigation.NotFound ->
+            NotFound ->
                 text "404: Page not found!"
         ]
 

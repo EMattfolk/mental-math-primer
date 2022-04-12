@@ -49,9 +49,9 @@ update msg model =
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend _ clientId msg model =
     case msg of
-        GetNewProblem ->
+        GetNewProblem difficulty ->
             ( model
-            , Random.generate (SendProblem clientId) randomProblem
+            , Random.generate (SendProblem clientId) (randomProblem difficulty)
             )
 
 

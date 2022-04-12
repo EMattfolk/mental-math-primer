@@ -3,7 +3,6 @@ module Types exposing (..)
 import Browser
 import Browser.Navigation exposing (Key)
 import Lamdera exposing (ClientId, SessionId)
-import Navigation exposing (Route)
 import Time
 import Url exposing (Url)
 
@@ -35,7 +34,7 @@ type FrontendMsg
 
 
 type ToBackend
-    = GetNewProblem
+    = GetNewProblem Difficulty
 
 
 type BackendMsg
@@ -85,3 +84,9 @@ type Difficulty
     | Medium
     | Hard
     | Impossible
+
+
+type Route
+    = Home
+    | ProblemPage Difficulty
+    | NotFound

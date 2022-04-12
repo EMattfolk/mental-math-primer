@@ -66,14 +66,34 @@ toProblemGenerator fragment =
         offsets
 
 
-randomProblem : Generator Problem
-randomProblem =
+randomProblem : Difficulty -> Generator Problem
+randomProblem difficulty =
     let
         t1 =
-            Random.int 1 15
+            Random.int 1
+                (case difficulty of
+                    Trivial ->
+                        15
+
+                    Easy ->
+                        999
+
+                    _ ->
+                        -100000
+                )
 
         t2 =
-            Random.int 1 15
+            Random.int 1
+                (case difficulty of
+                    Trivial ->
+                        15
+
+                    Easy ->
+                        999
+
+                    _ ->
+                        -100000
+                )
 
         fragment =
             Random.map2 (\a b -> Addition (Constant a) (Constant b)) t1 t2
