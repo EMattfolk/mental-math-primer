@@ -1,6 +1,6 @@
 module Frontend exposing (..)
 
-import Browser.Navigation exposing (Key, back)
+import Browser.Navigation exposing (Key)
 import Css exposing (..)
 import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css)
@@ -64,7 +64,7 @@ update msg model =
             -- hack
             ( { model | solvedProblems = modBy 10 (model.solvedProblems + 1) }
             , if model.solvedProblems == 9 then
-                back model.navigation.key 1
+                pushRoute model.navigation.key Home
 
               else
                 sendToBackend <| GetNewProblem (getDifficulty model)
