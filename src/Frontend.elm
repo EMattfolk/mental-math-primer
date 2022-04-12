@@ -219,6 +219,7 @@ choiceButton isCorrect choice =
             , fontSize (em 2)
             , margin (em 1)
             , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
+            , cursor pointer
             ]
         ]
         [ text choice ]
@@ -242,17 +243,33 @@ menuView _ =
     let
         listItem : (Difficulty -> Route) -> String -> Html FrontendMsg
         listItem route title =
+            let
+                difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
+                difficultyButton difficulty =
+                    button
+                        [ css
+                            [ fontSize (em 0.25) -- To parry (em 4) below
+                            , width (em 7)
+                            , margin (em 1)
+                            , padding (em 1)
+                            , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
+                            , borderRadius (em 999)
+                            , cursor pointer
+                            ]
+                        , onClick (PushRoute <| route difficulty)
+                        ]
+            in
             hdiv
                 [ css
-                    [ fontSize (em 2)
+                    [ fontSize (em 4)
                     ]
                 ]
                 [ text title
-                , button [ onClick (PushRoute <| route Trivial) ] [ text "Trivial" ]
-                , button [ onClick (PushRoute <| route Easy) ] [ text "Easy" ]
-                , button [ onClick (PushRoute <| route Medium) ] [ text "Medium" ]
-                , button [ onClick (PushRoute <| route Hard) ] [ text "Hard" ]
-                , button [ onClick (PushRoute <| route Impossible) ] [ text "Impossible" ]
+                , difficultyButton Trivial [ text "Trivial" ]
+                , difficultyButton Easy [ text "Easy" ]
+                , difficultyButton Medium [ text "Medium" ]
+                , difficultyButton Hard [ text "Hard" ]
+                , difficultyButton Impossible [ text "Impossible" ]
                 ]
     in
     vdiv []
