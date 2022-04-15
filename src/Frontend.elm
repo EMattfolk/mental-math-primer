@@ -7,6 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
 import Navigation exposing (pushRoute, toRoute)
+import Problem exposing (compareDifficulty)
 import Time
 import Types exposing (..)
 import Url
@@ -42,6 +43,9 @@ init url key =
             , remainingTime = 10.0
             }
       , solvedProblems = 0
+      , progress =
+            { addSub = Nothing
+            }
       , clientId = ""
       , navigation =
             { url = url
@@ -64,7 +68,10 @@ update msg model =
             -- hack
             ( { model | solvedProblems = modBy 10 (model.solvedProblems + 1) }
             , if model.solvedProblems == 9 then
-                pushRoute model.navigation.key Home
+                Cmd.batch
+                    [ pushRoute model.navigation.key Home
+                    , sendToBackend <| SaveProgress (getDifficulty model)
+                    ]
 
               else
                 sendToBackend <| GetNewProblem (getDifficulty model)
@@ -124,6 +131,9 @@ updateFromBackend msg model =
     case msg of
         SetProblem problem ->
             ( { model | problem = problem }, Cmd.none )
+
+        SetProgress progress ->
+            ( { model | progress = progress }, Cmd.none )
 
 
 getDifficulty : Model -> Difficulty
@@ -239,23 +249,37 @@ problemBox { statement, choices, correct, remainingTime } solvedProblems =
 
 
 menuView : Model -> Html FrontendMsg
-menuView _ =
+menuView model =
     let
         listItem : (Difficulty -> Route) -> String -> Html FrontendMsg
         listItem route title =
             let
+                difficultyBorder difficulty =
+                    case ( difficulty, model.progress.addSub ) of
+                        ( _, Nothing ) ->
+                            []
+
+                        ( _, Just saved ) ->
+                            if compareDifficulty difficulty saved /= GT then
+                                [ border3 (px 1) solid (rgb 0 255 0) ]
+
+                            else
+                                []
+
                 difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
                 difficultyButton difficulty =
                     button
                         [ css
-                            [ fontSize (em 0.25) -- To parry (em 4) below
-                            , width (em 7)
-                            , margin (em 1)
-                            , padding (em 1)
-                            , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
-                            , borderRadius (em 999)
-                            , cursor pointer
-                            ]
+                            ([ fontSize (em 0.25) -- To parry (em 4) below
+                             , width (em 7)
+                             , margin (em 1)
+                             , padding (em 1)
+                             , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
+                             , borderRadius (em 999)
+                             , cursor pointer
+                             ]
+                                ++ difficultyBorder difficulty
+                            )
                         , onClick (PushRoute <| route difficulty)
                         ]
             in

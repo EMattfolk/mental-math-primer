@@ -176,3 +176,26 @@ permute ( i0, i1, i2 ) list =
 
         _ ->
             []
+
+
+compareDifficulty : Difficulty -> Difficulty -> Order
+compareDifficulty d1 d2 =
+    let
+        value d =
+            case d of
+                Trivial ->
+                    0
+
+                Easy ->
+                    1
+
+                Medium ->
+                    2
+
+                Hard ->
+                    3
+
+                Impossible ->
+                    4
+    in
+    compare (value d1) (value d2)

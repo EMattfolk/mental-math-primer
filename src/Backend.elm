@@ -33,10 +33,10 @@ init =
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
 update msg model =
     case msg of
-        ClientConnected _ _ ->
+        ClientConnected _ clientId ->
             -- FIXME: This should probably do something
             ( model
-            , Cmd.none
+            , sendToFrontend clientId <| SetProgress model.progress
             )
 
         SendProblem clientId problem ->
@@ -52,6 +52,20 @@ updateFromFrontend _ clientId msg model =
         GetNewProblem difficulty ->
             ( model
             , Random.generate (SendProblem clientId) (randomProblem difficulty)
+            )
+
+        SaveProgress difficulty ->
+            let
+                newModel =
+                    { model
+                        | progress =
+                            { addSub = Just difficulty
+                            }
+                    }
+            in
+            -- TODO: merge with current
+            ( newModel
+            , sendToFrontend clientId <| SetProgress newModel.progress
             )
 
 
