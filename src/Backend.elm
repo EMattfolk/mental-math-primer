@@ -63,11 +63,11 @@ updateFromFrontend _ clientId msg model =
                                 model.progress.addSub
                                     |> Maybe.andThen
                                         (\saved ->
-                                            if compareDifficulty difficulty saved then
-                                                difficulty
+                                            if compareDifficulty difficulty saved == GT then
+                                                Just difficulty
 
                                             else
-                                                saved
+                                                Just saved
                                         )
                                     |> Maybe.withDefault difficulty
                                     |> Just
