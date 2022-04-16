@@ -68,7 +68,8 @@ updateFromFrontend sessionId clientId msg model =
                                 in
                                 Just
                                     { addSub =
-                                        progress.addSub
+                                        progress
+                                            |> .addSub
                                             |> Maybe.map
                                                 (\saved ->
                                                     if compareDifficulty difficulty saved == GT then
