@@ -2,14 +2,16 @@ module Types exposing (..)
 
 import Browser
 import Browser.Navigation exposing (Key)
+import Dict exposing (Dict)
 import Lamdera exposing (ClientId, SessionId)
 import Time
 import Url exposing (Url)
 
 
 type alias BackendModel =
-    { progress : Progress
-    }
+    Dict
+        SessionId
+        Progress
 
 
 type alias FrontendModel =

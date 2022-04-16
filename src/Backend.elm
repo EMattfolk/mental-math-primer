@@ -1,7 +1,8 @@
 module Backend exposing (app, init)
 
+import Dict exposing (Dict)
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import Problem exposing (compareDifficulty, randomProblem)
+import Problem exposing (compareDifficulty, emptyProgress, randomProblem)
 import Random
 import Types exposing (..)
 
@@ -22,10 +23,7 @@ app =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( { progress =
-            { addSub = Nothing
-            }
-      }
+    ( Dict.empty
     , Cmd.none
     )
 
@@ -33,10 +31,14 @@ init =
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
 update msg model =
     case msg of
-        ClientConnected _ clientId ->
-            -- FIXME: This should probably do something
+        ClientConnected sessionId clientId ->
             ( model
-            , sendToFrontend clientId <| SetProgress model.progress
+            , sendToFrontend clientId <|
+                SetProgress
+                    (model
+                        |> Dict.get sessionId
+                        |> Maybe.withDefault emptyProgress
+                    )
             )
 
         SendProblem clientId problem ->
@@ -47,7 +49,7 @@ update msg model =
 
 
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
-updateFromFrontend _ clientId msg model =
+updateFromFrontend sessionId clientId msg model =
     case msg of
         GetNewProblem difficulty ->
             ( model
@@ -57,25 +59,36 @@ updateFromFrontend _ clientId msg model =
         SaveProgress difficulty ->
             let
                 newModel =
-                    { model
-                        | progress =
-                            { addSub =
-                                model.progress.addSub
-                                    |> Maybe.map
-                                        (\saved ->
-                                            if compareDifficulty difficulty saved == GT then
-                                                difficulty
+                    model
+                        |> Dict.update sessionId
+                            (\maybeProgress ->
+                                let
+                                    progress =
+                                        maybeProgress |> Maybe.withDefault emptyProgress
+                                in
+                                Just
+                                    { addSub =
+                                        progress.addSub
+                                            |> Maybe.map
+                                                (\saved ->
+                                                    if compareDifficulty difficulty saved == GT then
+                                                        difficulty
 
-                                            else
-                                                saved
-                                        )
-                                    |> Maybe.withDefault difficulty
-                                    |> Just
-                            }
-                    }
+                                                    else
+                                                        saved
+                                                )
+                                            |> Maybe.withDefault difficulty
+                                            |> Just
+                                    }
+                            )
             in
             ( newModel
-            , sendToFrontend clientId <| SetProgress newModel.progress
+            , sendToFrontend clientId <|
+                SetProgress
+                    (newModel
+                        |> Dict.get sessionId
+                        |> Maybe.withDefault emptyProgress
+                    )
             )
 
 

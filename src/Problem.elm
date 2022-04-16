@@ -199,3 +199,9 @@ compareDifficulty d1 d2 =
                     4
     in
     compare (value d1) (value d2)
+
+
+emptyProgress : Progress
+emptyProgress =
+    { addSub = Nothing
+    }
