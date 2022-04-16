@@ -60,16 +60,17 @@ updateFromFrontend _ clientId msg model =
                     { model
                         | progress =
                             { addSub =
-                                case ( difficulty, model.progress.addSub ) of
-                                    ( _, Nothing ) ->
-                                        Just difficulty
+                                model.progress.addSub
+                                    |> Maybe.andThen
+                                        (\saved ->
+                                            if compareDifficulty difficulty saved then
+                                                difficulty
 
-                                    ( _, Just saved ) ->
-                                        if compareDifficulty difficulty saved == GT then
-                                            Just difficulty
-
-                                        else
-                                            Just saved
+                                            else
+                                                saved
+                                        )
+                                    |> Maybe.withDefault difficulty
+                                    |> Just
                             }
                     }
             in
