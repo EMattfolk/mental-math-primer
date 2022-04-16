@@ -1,7 +1,7 @@
 module Backend exposing (app, init)
 
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import Problem exposing (randomProblem)
+import Problem exposing (compareDifficulty, randomProblem)
 import Random
 import Types exposing (..)
 
@@ -59,11 +59,20 @@ updateFromFrontend _ clientId msg model =
                 newModel =
                     { model
                         | progress =
-                            { addSub = Just difficulty
+                            { addSub =
+                                case ( difficulty, model.progress.addSub ) of
+                                    ( _, Nothing ) ->
+                                        Just difficulty
+
+                                    ( _, Just saved ) ->
+                                        if compareDifficulty difficulty saved == GT then
+                                            Just difficulty
+
+                                        else
+                                            Just saved
                             }
                     }
             in
-            -- TODO: merge with current
             ( newModel
             , sendToFrontend clientId <| SetProgress newModel.progress
             )
