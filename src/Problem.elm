@@ -75,8 +75,8 @@ toProblemGenerator fragment =
         offsets
 
 
-randomProblem : Difficulty -> Generator Problem
-randomProblem difficulty =
+addSubProblem : Difficulty -> Generator Problem
+addSubProblem difficulty =
     let
         n =
             case difficulty of
@@ -112,6 +112,13 @@ randomProblem difficulty =
     in
     fragment
         |> Random.andThen toProblemGenerator
+
+
+randomProblem : ProblemType -> Difficulty -> Generator Problem
+randomProblem problemType =
+    case problemType of
+        AddSub ->
+            addSubProblem
 
 
 {-| A "list" of the permutations of the tuple (0, 1, 2)

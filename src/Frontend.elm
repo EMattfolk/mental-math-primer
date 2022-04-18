@@ -53,8 +53,8 @@ init url key =
             }
       }
     , case toRoute url of
-        ProblemPage difficulty ->
-            sendToBackend (GetNewProblem difficulty)
+        ProblemPage problemType difficulty ->
+            sendToBackend (GetNewProblem problemType difficulty)
 
         _ ->
             Cmd.none
@@ -70,11 +70,15 @@ update msg model =
             , if model.solvedProblems == 9 then
                 Cmd.batch
                     [ pushRoute model.navigation.key Home
-                    , sendToBackend <| SaveProgress (getDifficulty model)
+                    , SaveProgress
+                        |> applyProblemSpecs model
+                        |> sendToBackend
                     ]
 
               else
-                sendToBackend <| GetNewProblem (getDifficulty model)
+                GetNewProblem
+                    |> applyProblemSpecs model
+                    |> sendToBackend
             )
 
         Tick _ ->
@@ -95,7 +99,9 @@ update msg model =
                         model.solvedProblems
               }
             , if problem.remainingTime == 0 then
-                sendToBackend <| GetNewProblem (getDifficulty model)
+                GetNewProblem
+                    |> applyProblemSpecs model
+                    |> sendToBackend
 
               else
                 Cmd.none
@@ -119,7 +125,9 @@ update msg model =
                     }
             in
             ( newModel
-            , sendToBackend <| GetNewProblem (getDifficulty newModel)
+            , GetNewProblem
+                |> applyProblemSpecs newModel
+                |> sendToBackend
             )
 
         FrontendNoop ->
@@ -136,14 +144,14 @@ updateFromBackend msg model =
             ( { model | progress = progress }, Cmd.none )
 
 
-getDifficulty : Model -> Difficulty
-getDifficulty model =
+applyProblemSpecs : Model -> (ProblemType -> Difficulty -> ToBackend) -> ToBackend
+applyProblemSpecs model toBackend =
     case toRoute model.navigation.url of
-        ProblemPage difficulty ->
-            difficulty
+        ProblemPage problemType difficulty ->
+            toBackend problemType difficulty
 
         _ ->
-            Trivial
+            toBackend AddSub Trivial
 
 
 flexedDiv :
@@ -303,7 +311,7 @@ menuView model =
                 ]
             ]
             [ text "Mental Math Primer" ]
-        , listItem ProblemPage "+-"
+        , listItem (ProblemPage AddSub) "+-"
         ]
 
 
@@ -320,7 +328,7 @@ view model =
             Home ->
                 menuView model
 
-            ProblemPage _ ->
+            ProblemPage _ _ ->
                 problemView model
 
             NotFound ->

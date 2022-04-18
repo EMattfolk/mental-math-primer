@@ -10,11 +10,11 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ map Home top
-        , map (ProblemPage Trivial) (s "problem" </> s "trivial")
-        , map (ProblemPage Easy) (s "problem" </> s "easy")
-        , map (ProblemPage Medium) (s "problem" </> s "medium")
-        , map (ProblemPage Hard) (s "problem" </> s "hard")
-        , map (ProblemPage Impossible) (s "problem" </> s "impossible")
+        , map (ProblemPage AddSub Trivial) (s "addition" </> s "trivial")
+        , map (ProblemPage AddSub Easy) (s "addition" </> s "easy")
+        , map (ProblemPage AddSub Medium) (s "addition" </> s "medium")
+        , map (ProblemPage AddSub Hard) (s "addition" </> s "hard")
+        , map (ProblemPage AddSub Impossible) (s "addition" </> s "impossible")
         ]
 
 
@@ -31,8 +31,13 @@ pushRoute key r =
             Home ->
                 "/"
 
-            ProblemPage difficulty ->
-                "/problem/"
+            ProblemPage problemType difficulty ->
+                "/"
+                    ++ (case problemType of
+                            AddSub ->
+                                "addition"
+                       )
+                    ++ "/"
                     ++ (case difficulty of
                             Trivial ->
                                 "trivial"

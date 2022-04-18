@@ -35,8 +35,8 @@ type FrontendMsg
 
 
 type ToBackend
-    = GetNewProblem Difficulty
-    | SaveProgress Difficulty
+    = GetNewProblem ProblemType Difficulty
+    | SaveProgress ProblemType Difficulty
 
 
 type BackendMsg
@@ -81,9 +81,8 @@ type alias Progress =
     }
 
 
-
---type ProblemType
---    = AddSub
+type ProblemType
+    = AddSub
 
 
 type Difficulty
@@ -96,5 +95,5 @@ type Difficulty
 
 type Route
     = Home
-    | ProblemPage Difficulty
+    | ProblemPage ProblemType Difficulty
     | NotFound
