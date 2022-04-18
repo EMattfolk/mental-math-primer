@@ -224,10 +224,10 @@ choiceButton isCorrect choice =
             )
         , css
             [ borderRadius (em 10)
-            , width (em 2)
-            , height (em 2)
             , fontSize (em 2)
             , margin (em 1)
+            , padding (em 0.5)
+            , border3 (px 1) solid (rgb 0 0 0)
             , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
             , cursor pointer
             ]
@@ -261,10 +261,10 @@ menuView model =
 
                         ( _, Just saved ) ->
                             if compareDifficulty difficulty saved /= GT then
-                                [ border3 (px 1) solid (rgb 0 255 0) ]
+                                [ border3 (px 1) solid (rgb 0 175 0) ]
 
                             else
-                                []
+                                [ border3 (px 1) solid (rgb 0 0 0) ]
 
                 difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
                 difficultyButton difficulty =
