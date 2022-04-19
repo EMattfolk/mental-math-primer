@@ -7,7 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
 import Navigation exposing (pushRoute, toRoute)
-import Problem exposing (compareDifficulty)
+import Problem exposing (compareDifficulty, emptyProgress)
 import Time
 import Types exposing (..)
 import Url
@@ -43,9 +43,7 @@ init url key =
             , remainingTime = 10.0
             }
       , solvedProblems = 0
-      , progress =
-            { addSub = Nothing
-            }
+      , progress = emptyProgress
       , clientId = ""
       , navigation =
             { url = url
@@ -259,11 +257,19 @@ problemBox { statement, choices, correct, remainingTime } solvedProblems =
 menuView : Model -> Html FrontendMsg
 menuView model =
     let
-        listItem : (Difficulty -> Route) -> String -> Html FrontendMsg
-        listItem route title =
+        listItem : ProblemType -> String -> Html FrontendMsg
+        listItem problemType title =
             let
+                accessor =
+                    case problemType of
+                        AddSub ->
+                            .addSub
+
+                        Mul ->
+                            .mul
+
                 difficultyBorder difficulty =
-                    case ( difficulty, model.progress.addSub ) of
+                    case ( difficulty, model.progress |> accessor ) of
                         ( _, Nothing ) ->
                             []
 
@@ -288,7 +294,7 @@ menuView model =
                              ]
                                 ++ difficultyBorder difficulty
                             )
-                        , onClick (PushRoute <| route difficulty)
+                        , onClick (PushRoute <| ProblemPage problemType difficulty)
                         ]
             in
             hdiv
@@ -311,8 +317,8 @@ menuView model =
                 ]
             ]
             [ text "Mental Math Primer" ]
-        , listItem (ProblemPage AddSub) "+-"
-        , listItem (ProblemPage Mul) "*"
+        , listItem AddSub "+-"
+        , listItem Mul "*"
         ]
 
 

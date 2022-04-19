@@ -78,6 +78,7 @@ type alias Problem =
 
 type alias Progress =
     { addSub : Maybe Difficulty
+    , mul : Maybe Difficulty
     }
 
 

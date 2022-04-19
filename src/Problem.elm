@@ -248,4 +248,5 @@ compareDifficulty d1 d2 =
 emptyProgress : Progress
 emptyProgress =
     { addSub = Nothing
+    , mul = Nothing
     }

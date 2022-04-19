@@ -56,7 +56,7 @@ updateFromFrontend sessionId clientId msg model =
             , Random.generate (SendProblem clientId) (randomProblem problemType difficulty)
             )
 
-        SaveProgress _ difficulty ->
+        SaveProgress problemType difficulty ->
             let
                 newModel =
                     model
@@ -65,21 +65,37 @@ updateFromFrontend sessionId clientId msg model =
                                 let
                                     progress =
                                         maybeProgress |> Maybe.withDefault emptyProgress
+
+                                    mergeIfCorrectProblem savedType savedProgress =
+                                        let
+                                            merged =
+                                                savedProgress
+                                                    |> Maybe.map
+                                                        (\saved ->
+                                                            if compareDifficulty difficulty saved == GT then
+                                                                difficulty
+
+                                                            else
+                                                                saved
+                                                        )
+                                                    |> Maybe.withDefault difficulty
+                                                    |> Just
+                                        in
+                                        if savedType == problemType then
+                                            merged
+
+                                        else
+                                            savedProgress
                                 in
                                 Just
                                     { addSub =
                                         progress
                                             |> .addSub
-                                            |> Maybe.map
-                                                (\saved ->
-                                                    if compareDifficulty difficulty saved == GT then
-                                                        difficulty
-
-                                                    else
-                                                        saved
-                                                )
-                                            |> Maybe.withDefault difficulty
-                                            |> Just
+                                            |> mergeIfCorrectProblem AddSub
+                                    , mul =
+                                        progress
+                                            |> .mul
+                                            |> mergeIfCorrectProblem Mul
                                     }
                             )
             in
