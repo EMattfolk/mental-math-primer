@@ -21,6 +21,7 @@ offsets =
 -}
 type Fragment
     = Addition Fragment Fragment
+    | Multiplication Fragment Fragment
     | Constant Int
 
 
@@ -29,6 +30,9 @@ eval fragment =
     case fragment of
         Addition f1 f2 ->
             eval f1 + eval f2
+
+        Multiplication f1 f2 ->
+            eval f1 * eval f2
 
         Constant c ->
             c
@@ -48,6 +52,9 @@ toString fragment =
 
         Addition f1 f2 ->
             toString f1 ++ " + " ++ toString f2
+
+        Multiplication f1 f2 ->
+            toString f1 ++ " * " ++ toString f2
 
         Constant c ->
             String.fromInt c
@@ -114,11 +121,41 @@ addSubProblem difficulty =
         |> Random.andThen toProblemGenerator
 
 
+mulProblem : Difficulty -> Generator Problem
+mulProblem difficulty =
+    let
+        n =
+            case difficulty of
+                Trivial ->
+                    Random.int 1 5
+
+                Easy ->
+                    Random.int 1 7
+
+                Medium ->
+                    Random.int 1 9
+
+                Hard ->
+                    Random.int 1 12
+
+                Impossible ->
+                    Random.int 1 16
+
+        fragment =
+            Random.map2 (\a b -> Multiplication (Constant a) (Constant b)) n n
+    in
+    fragment
+        |> Random.andThen toProblemGenerator
+
+
 randomProblem : ProblemType -> Difficulty -> Generator Problem
 randomProblem problemType =
     case problemType of
         AddSub ->
             addSubProblem
+
+        Mul ->
+            mulProblem
 
 
 {-| A "list" of the permutations of the tuple (0, 1, 2)

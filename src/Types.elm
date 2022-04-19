@@ -83,6 +83,7 @@ type alias Progress =
 
 type ProblemType
     = AddSub
+    | Mul
 
 
 type Difficulty

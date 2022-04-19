@@ -312,6 +312,7 @@ menuView model =
             ]
             [ text "Mental Math Primer" ]
         , listItem (ProblemPage AddSub) "+-"
+        , listItem (ProblemPage Mul) "*"
         ]
 
 

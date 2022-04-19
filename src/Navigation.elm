@@ -15,6 +15,11 @@ route =
         , map (ProblemPage AddSub Medium) (s "addition" </> s "medium")
         , map (ProblemPage AddSub Hard) (s "addition" </> s "hard")
         , map (ProblemPage AddSub Impossible) (s "addition" </> s "impossible")
+        , map (ProblemPage Mul Trivial) (s "multiplication" </> s "trivial")
+        , map (ProblemPage Mul Easy) (s "multiplication" </> s "easy")
+        , map (ProblemPage Mul Medium) (s "multiplication" </> s "medium")
+        , map (ProblemPage Mul Hard) (s "multiplication" </> s "hard")
+        , map (ProblemPage Mul Impossible) (s "multiplication" </> s "impossible")
         ]
 
 
@@ -36,6 +41,9 @@ pushRoute key r =
                     ++ (case problemType of
                             AddSub ->
                                 "addition"
+
+                            Mul ->
+                                "multiplication"
                        )
                     ++ "/"
                     ++ (case difficulty of
