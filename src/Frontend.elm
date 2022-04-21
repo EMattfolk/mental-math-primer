@@ -218,9 +218,23 @@ timerText remainingTime =
         ]
 
 
+themedButton : List (Attribute FrontendMsg) -> List (Html FrontendMsg) -> Html FrontendMsg
+themedButton attributes elements =
+    button
+        (css
+            [ backgroundColor theme.accent
+            , color theme.primary
+            , border3 (px 1) solid theme.primary
+            , boxShadow4 (px 0) (px 0) (px 10) theme.accent
+            ]
+            :: attributes
+        )
+        elements
+
+
 choiceButton : Bool -> String -> Html FrontendMsg
 choiceButton isCorrect choice =
-    button
+    themedButton
         [ onClick
             (if isCorrect then
                 ProblemSolved
@@ -233,8 +247,6 @@ choiceButton isCorrect choice =
             , fontSize (em 2)
             , margin (em 1)
             , padding (em 0.5)
-            , border3 (px 1) solid (rgb 0 0 0)
-            , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
             , cursor pointer
             ]
         ]
@@ -275,21 +287,20 @@ menuView model =
                             |> Maybe.map (\saved -> compareDifficulty difficulty saved /= GT)
                     of
                         Just True ->
-                            [ border3 (px 1) solid (rgb 0 175 0) ]
+                            [ border3 (px 2) solid theme.green ]
 
                         _ ->
-                            [ border3 (px 1) solid (rgb 0 0 0) ]
+                            [ border3 (px 1) solid theme.primary ]
 
                 difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
                 difficultyButton difficulty =
-                    button
+                    themedButton
                         [ css
                             ([ fontSize (em 0.25) -- To parry (em 4) below
                              , width (em 7)
                              , margin (em 1)
                              , padding (em 1)
-                             , boxShadow4 (px 3) (px 3) (px 5) (rgb 211 211 211)
-                             , borderRadius (em 999)
+                             , borderRadius (em 10)
                              , cursor pointer
                              ]
                                 ++ difficultyBorder difficulty
@@ -329,7 +340,12 @@ problemView model =
 
 view : Model -> Html FrontendMsg
 view model =
-    vdiv []
+    vdiv
+        [ css
+            [ backgroundColor theme.background
+            , color theme.primary
+            ]
+        ]
         [ Html.Styled.node "style" [] [ text bodyCss ]
         , case toRoute model.navigation.url of
             Home ->
@@ -352,6 +368,16 @@ bodyCss =
         height: 100vh;
     }
     """
+
+
+theme : { primary : Color, background : Color, accent : Color, green : Color, red : Color }
+theme =
+    { primary = rgb 253 232 233
+    , background = rgb 31 34 50
+    , accent = rgb 50 54 70
+    , green = rgb 76 185 68
+    , red = rgb 254 74 73
+    }
 
 
 subscriptions : model -> Sub FrontendMsg
