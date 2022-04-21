@@ -269,16 +269,16 @@ menuView model =
                             .mul
 
                 difficultyBorder difficulty =
-                    case ( difficulty, model.progress |> accessor ) of
-                        ( _, Nothing ) ->
-                            []
+                    case
+                        model.progress
+                            |> accessor
+                            |> Maybe.map (\saved -> compareDifficulty difficulty saved /= GT)
+                    of
+                        Just True ->
+                            [ border3 (px 1) solid (rgb 0 175 0) ]
 
-                        ( _, Just saved ) ->
-                            if compareDifficulty difficulty saved /= GT then
-                                [ border3 (px 1) solid (rgb 0 175 0) ]
-
-                            else
-                                [ border3 (px 1) solid (rgb 0 0 0) ]
+                        _ ->
+                            [ border3 (px 1) solid (rgb 0 0 0) ]
 
                 difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
                 difficultyButton difficulty =
