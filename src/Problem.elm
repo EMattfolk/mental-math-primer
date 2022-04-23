@@ -1,5 +1,6 @@
 module Problem exposing (..)
 
+import Config exposing (Env(..))
 import Random exposing (Generator)
 import Types exposing (..)
 
@@ -60,11 +61,47 @@ toString fragment =
             String.fromInt c
 
 
+toLatex : Fragment -> String
+toLatex fragment =
+    let
+        helper f =
+            case f of
+                Addition f1 (Constant c) ->
+                    toString f1
+                        ++ (if c < 0 then
+                                " - " ++ String.fromInt -c
+
+                            else
+                                " + " ++ String.fromInt c
+                           )
+
+                Addition f1 f2 ->
+                    toString f1 ++ " + " ++ toString f2
+
+                Multiplication f1 f2 ->
+                    toString f1 ++ " \\times " ++ toString f2
+
+                Constant c ->
+                    String.fromInt c
+    in
+    "$" ++ helper fragment ++ "$"
+
+
+render : Fragment -> String
+render =
+    case Config.mode of
+        Development ->
+            toString
+
+        Production ->
+            toLatex
+
+
 toProblemGenerator : Fragment -> Generator Problem
 toProblemGenerator fragment =
     Random.map2
         (\p ( o1, o2 ) ->
-            { statement = fragment |> toString
+            { statement = fragment |> render
             , choices =
                 let
                     v =
