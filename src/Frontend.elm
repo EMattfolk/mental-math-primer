@@ -65,7 +65,10 @@ init url key =
             sendToBackend (GetNewProblem problemType difficulty)
 
         Authorize access_token ->
-            sendToBackend (LogIn (access_token |> Maybe.withDefault ""))
+            Cmd.batch
+                [ sendToBackend (LogIn (access_token |> Maybe.withDefault ""))
+                , pushRoute key Home
+                ]
 
         _ ->
             Cmd.none
