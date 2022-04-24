@@ -3,6 +3,7 @@ module Types exposing (..)
 import Browser
 import Browser.Navigation exposing (Key)
 import Dict exposing (Dict)
+import Http
 import Lamdera exposing (ClientId, SessionId)
 import Time
 import Url exposing (Url)
@@ -38,11 +39,13 @@ type FrontendMsg
 type ToBackend
     = GetNewProblem ProblemType Difficulty
     | SaveProgress ProblemType Difficulty
+    | LogIn String
 
 
 type BackendMsg
     = ClientConnected SessionId ClientId
     | SendProblem ClientId Problem
+    | LoggedIn (Result Http.Error String)
 
 
 type ToFrontend
@@ -98,5 +101,6 @@ type Difficulty
 
 type Route
     = Home
+    | Authorize (Maybe String)
     | ProblemPage ProblemType Difficulty
     | NotFound

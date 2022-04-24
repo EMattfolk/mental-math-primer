@@ -64,6 +64,9 @@ init url key =
         ProblemPage problemType difficulty ->
             sendToBackend (GetNewProblem problemType difficulty)
 
+        Authorize access_token ->
+            sendToBackend (LogIn (access_token |> Maybe.withDefault ""))
+
         _ ->
             Cmd.none
     )
@@ -365,6 +368,9 @@ view model =
             Home ->
                 menuView model
 
+            Authorize _ ->
+                menuView model
+
             ProblemPage _ _ ->
                 problemView model
 
@@ -398,19 +404,18 @@ theme =
 
 authUrl : String
 authUrl =
-    "https://"
-        ++ auth0AuthorizeURL
-            (Auth0Config "dev-vtcno-ac.us.auth0.com" "pJsQXQKLDptayHhSm3vt42jOJPYFx1xT")
-            "token"
-            (case Config.mode of
-                Development ->
-                    "http://localhost:8000/authorize"
+    auth0AuthorizeURL
+        (Auth0Config Config.auth0Url "pJsQXQKLDptayHhSm3vt42jOJPYFx1xT")
+        "token"
+        (case Config.mode of
+            Development ->
+                "http://localhost:8000/authorize"
 
-                Production ->
-                    "https://mental-math-primer.lamdera.app/authorize"
-            )
-            [ "openid", "name", "email" ]
-            (Just "google-oauth2")
+            Production ->
+                "https://mental-math-primer.lamdera.app/authorize"
+        )
+        [ "openid", "name", "email" ]
+        (Just "google-oauth2")
 
 
 subscriptions : model -> Sub FrontendMsg

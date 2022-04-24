@@ -1,6 +1,9 @@
 module Backend exposing (app, init)
 
+import Config
 import Dict
+import Http
+import Json.Decode exposing (field, string)
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import Problem exposing (compareDifficulty, emptyProgress, randomProblem)
 import Random
@@ -47,6 +50,12 @@ update msg model =
                 SetProblem problem
             )
 
+        LoggedIn res ->
+            ( model
+            , Cmd.none
+              -- TODO
+            )
+
 
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend sessionId clientId msg model =
@@ -54,6 +63,20 @@ updateFromFrontend sessionId clientId msg model =
         GetNewProblem problemType difficulty ->
             ( model
             , Random.generate (SendProblem clientId) (randomProblem problemType difficulty)
+            )
+
+        LogIn access_token ->
+            ( model
+            , Http.request
+                { method = "GET"
+                , url = Config.auth0Url ++ "/userinfo"
+                , headers =
+                    [ Http.header "Authorization" ("Bearer " ++ access_token) ]
+                , body = Http.emptyBody
+                , timeout = Nothing
+                , tracker = Nothing
+                , expect = Http.expectJson LoggedIn (field "sub" string)
+                }
             )
 
         SaveProgress problemType difficulty ->
