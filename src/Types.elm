@@ -31,6 +31,7 @@ type FrontendMsg
     | Tick Time.Posix
     | FrontendNoop
     | PushRoute Route
+    | Load String
     | UrlChanged Url
 
 

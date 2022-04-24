@@ -1,9 +1,12 @@
 module Frontend exposing (..)
 
-import Browser.Navigation exposing (Key)
+import Auth0 exposing (Auth0Config, auth0AuthorizeURL)
+import Browser
+import Browser.Navigation exposing (Key, load)
+import Config exposing (Env(..))
 import Css exposing (..)
-import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled exposing (Attribute, Html, a, button, div, text, toUnstyled)
+import Html.Styled.Attributes exposing (css, href)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
 import Navigation exposing (pushRoute, toRoute)
@@ -30,7 +33,14 @@ app =
                 }
         , subscriptions = subscriptions
         , onUrlChange = UrlChanged
-        , onUrlRequest = \_ -> FrontendNoop
+        , onUrlRequest =
+            \request ->
+                case request of
+                    Browser.External path ->
+                        Load path
+
+                    _ ->
+                        FrontendNoop
         }
 
 
@@ -107,6 +117,9 @@ update msg model =
 
         PushRoute route ->
             ( model, pushRoute model.navigation.key route )
+
+        Load path ->
+            ( model, load path )
 
         UrlChanged url ->
             let
@@ -330,6 +343,7 @@ menuView model =
             [ text "Mental Math Primer" ]
         , listItem AddSub "+-"
         , listItem Mul "*"
+        , a [ href authUrl ] [ text "Log in with Google" ]
         ]
 
 
@@ -380,6 +394,23 @@ theme =
     , green = rgb 76 185 68
     , red = rgb 254 74 73
     }
+
+
+authUrl : String
+authUrl =
+    "https://"
+        ++ auth0AuthorizeURL
+            (Auth0Config "dev-vtcno-ac.us.auth0.com" "pJsQXQKLDptayHhSm3vt42jOJPYFx1xT")
+            "token"
+            (case Config.mode of
+                Development ->
+                    "http://localhost:8000/authorize"
+
+                Production ->
+                    "https://mental-math-primer.lamdera.app/authorize"
+            )
+            [ "openid", "name", "email" ]
+            (Just "google-oauth2")
 
 
 subscriptions : model -> Sub FrontendMsg
