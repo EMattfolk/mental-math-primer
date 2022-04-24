@@ -418,8 +418,11 @@ authUrl =
         (Just "google-oauth2")
 
 
-subscriptions : model -> Sub FrontendMsg
-subscriptions _ =
-    Sub.batch
-        [ Time.every 100 Tick
-        ]
+subscriptions : Model -> Sub FrontendMsg
+subscriptions model =
+    case toRoute model.navigation.url of
+        ProblemPage _ _ ->
+            Time.every 100 Tick
+
+        _ ->
+            Sub.batch []
