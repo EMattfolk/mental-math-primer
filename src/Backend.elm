@@ -26,7 +26,9 @@ app =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( Dict.empty
+    ( { progress = Dict.empty
+      , sessionToProgressId = Dict.empty
+      }
     , Cmd.none
     )
 
@@ -37,11 +39,7 @@ update msg model =
         ClientConnected sessionId clientId ->
             ( model
             , sendToFrontend clientId <|
-                SetProgress
-                    (model
-                        |> Dict.get sessionId
-                        |> Maybe.withDefault emptyProgress
-                    )
+                SetProgress (getProgress sessionId model)
             )
 
         SendProblem clientId problem ->
@@ -50,10 +48,25 @@ update msg model =
                 SetProblem problem
             )
 
-        LoggedIn res ->
-            ( model
-            , Cmd.none
-              -- TODO
+        LoggedIn sessionId clientId res ->
+            let
+                newModel =
+                    case res of
+                        Ok id ->
+                            { model
+                                | sessionToProgressId =
+                                    model.sessionToProgressId
+                                        |> Dict.insert sessionId id
+
+                                -- TODO: Merge progress here
+                            }
+
+                        Err _ ->
+                            model
+            in
+            ( newModel
+            , sendToFrontend clientId <|
+                SetProgress (getProgress sessionId newModel)
             )
 
 
@@ -75,61 +88,76 @@ updateFromFrontend sessionId clientId msg model =
                 , body = Http.emptyBody
                 , timeout = Nothing
                 , tracker = Nothing
-                , expect = Http.expectJson LoggedIn (field "sub" string)
+                , expect = Http.expectJson (LoggedIn sessionId clientId) (field "sub" string)
                 }
             )
 
         SaveProgress problemType difficulty ->
             let
+                id =
+                    model.sessionToProgressId
+                        |> Dict.get sessionId
+                        |> Maybe.withDefault sessionId
+
                 newModel =
-                    model
-                        |> Dict.update sessionId
-                            (\maybeProgress ->
-                                let
-                                    progress =
-                                        maybeProgress |> Maybe.withDefault emptyProgress
-
-                                    mergeIfCorrectProblem savedType savedProgress =
+                    { model
+                        | progress =
+                            model.progress
+                                |> Dict.update id
+                                    (\maybeProgress ->
                                         let
-                                            merged =
-                                                savedProgress
-                                                    |> Maybe.map
-                                                        (\saved ->
-                                                            if compareDifficulty difficulty saved == GT then
-                                                                difficulty
+                                            progress =
+                                                maybeProgress |> Maybe.withDefault emptyProgress
 
-                                                            else
-                                                                saved
-                                                        )
-                                                    |> Maybe.withDefault difficulty
-                                                    |> Just
+                                            mergeIfCorrectProblem savedType savedProgress =
+                                                let
+                                                    merged =
+                                                        savedProgress
+                                                            |> Maybe.map
+                                                                (\saved ->
+                                                                    if compareDifficulty difficulty saved == GT then
+                                                                        difficulty
+
+                                                                    else
+                                                                        saved
+                                                                )
+                                                            |> Maybe.withDefault difficulty
+                                                            |> Just
+                                                in
+                                                if savedType == problemType then
+                                                    merged
+
+                                                else
+                                                    savedProgress
                                         in
-                                        if savedType == problemType then
-                                            merged
-
-                                        else
-                                            savedProgress
-                                in
-                                Just
-                                    { addSub =
-                                        progress
-                                            |> .addSub
-                                            |> mergeIfCorrectProblem AddSub
-                                    , mul =
-                                        progress
-                                            |> .mul
-                                            |> mergeIfCorrectProblem Mul
-                                    }
-                            )
+                                        Just
+                                            { addSub =
+                                                progress
+                                                    |> .addSub
+                                                    |> mergeIfCorrectProblem AddSub
+                                            , mul =
+                                                progress
+                                                    |> .mul
+                                                    |> mergeIfCorrectProblem Mul
+                                            }
+                                    )
+                    }
             in
             ( newModel
             , sendToFrontend clientId <|
-                SetProgress
-                    (newModel
-                        |> Dict.get sessionId
-                        |> Maybe.withDefault emptyProgress
-                    )
+                SetProgress (getProgress sessionId newModel)
             )
+
+
+getProgress : SessionId -> Model -> Progress
+getProgress sessionId model =
+    model.progress
+        |> Dict.get
+            (model.sessionToProgressId
+                |> Dict.get sessionId
+                |> Maybe.withDefault sessionId
+            )
+        |> Maybe.withDefault emptyProgress
 
 
 subscriptions : Model -> Sub BackendMsg

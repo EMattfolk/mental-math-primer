@@ -10,9 +10,9 @@ import Url exposing (Url)
 
 
 type alias BackendModel =
-    Dict
-        SessionId
-        Progress
+    { progress : Dict String Progress
+    , sessionToProgressId : Dict SessionId String
+    }
 
 
 type alias FrontendModel =
@@ -45,7 +45,7 @@ type ToBackend
 type BackendMsg
     = ClientConnected SessionId ClientId
     | SendProblem ClientId Problem
-    | LoggedIn (Result Http.Error String)
+    | LoggedIn SessionId ClientId (Result Http.Error String)
 
 
 type ToFrontend
