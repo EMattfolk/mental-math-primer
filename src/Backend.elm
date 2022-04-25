@@ -5,7 +5,7 @@ import Dict
 import Http
 import Json.Decode exposing (field, string)
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import Problem exposing (compareDifficulty, emptyProgress, mergeProgress, randomProblem)
+import Problem exposing (emptyProgress, mergeProgress, randomProblem)
 import Random
 import Types exposing (..)
 
@@ -61,8 +61,25 @@ update msg model =
                                 | sessionToProgressId =
                                     model.sessionToProgressId
                                         |> Dict.insert sessionId id
-
-                                -- TODO: Merge progress here
+                                , progress =
+                                    model.progress
+                                        |> Dict.update id
+                                            (\maybeProgress ->
+                                                let
+                                                    currentProgress =
+                                                        model.progress |> Dict.get sessionId
+                                                in
+                                                Just <|
+                                                    mergeProgress
+                                                        (Maybe.withDefault
+                                                            emptyProgress
+                                                            maybeProgress
+                                                        )
+                                                        (Maybe.withDefault
+                                                            emptyProgress
+                                                            currentProgress
+                                                        )
+                                            )
                             }
 
                         Err _ ->
