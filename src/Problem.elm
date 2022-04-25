@@ -60,6 +60,15 @@ toString fragment =
             String.fromInt c
 
 
+emptyProblem : Problem
+emptyProblem =
+    { statement = ""
+    , choices = []
+    , correct = 0
+    , remainingTime = 10.0
+    }
+
+
 toProblemGenerator : Fragment -> Generator Problem
 toProblemGenerator fragment =
     Random.map2

@@ -10,7 +10,7 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
 import Navigation exposing (pushRoute, toRoute)
-import Problem exposing (compareDifficulty, emptyProgress)
+import Problem exposing (compareDifficulty, emptyProblem, emptyProgress)
 import Time
 import Types exposing (..)
 import Url
@@ -46,12 +46,7 @@ app =
 
 init : Url.Url -> Key -> ( Model, Cmd FrontendMsg )
 init url key =
-    ( { problem =
-            { statement = ""
-            , choices = []
-            , correct = 0
-            , remainingTime = 10.0
-            }
+    ( { problem = emptyProblem
       , solvedProblems = 0
       , clientId = ""
       , progress = emptyProgress
