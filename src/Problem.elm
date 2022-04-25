@@ -250,3 +250,32 @@ emptyProgress =
     { addSub = Nothing
     , mul = Nothing
     }
+
+
+{-| Merge two progresses, keeping the highest values
+-}
+mergeProgress : Progress -> Progress -> Progress
+mergeProgress p1 p2 =
+    let
+        mergeMaybeDifficulty md1 md2 =
+            case ( md1, md2 ) of
+                ( Nothing, Nothing ) ->
+                    Nothing
+
+                ( Just _, Nothing ) ->
+                    md1
+
+                ( Nothing, Just _ ) ->
+                    md2
+
+                ( Just d1, Just d2 ) ->
+                    Just <|
+                        if compareDifficulty d1 d2 == GT then
+                            d1
+
+                        else
+                            d2
+    in
+    { addSub = mergeMaybeDifficulty p1.addSub p2.addSub
+    , mul = mergeMaybeDifficulty p1.mul p2.mul
+    }

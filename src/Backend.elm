@@ -5,7 +5,7 @@ import Dict
 import Http
 import Json.Decode exposing (field, string)
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import Problem exposing (compareDifficulty, emptyProgress, randomProblem)
+import Problem exposing (compareDifficulty, emptyProgress, mergeProgress, randomProblem)
 import Random
 import Types exposing (..)
 
@@ -132,39 +132,27 @@ updateFromFrontend sessionId clientId msg model =
                                     (\maybeProgress ->
                                         let
                                             progress =
-                                                maybeProgress |> Maybe.withDefault emptyProgress
+                                                maybeProgress
+                                                    |> Maybe.withDefault emptyProgress
 
-                                            mergeIfCorrectProblem savedType savedProgress =
-                                                let
-                                                    merged =
-                                                        savedProgress
-                                                            |> Maybe.map
-                                                                (\saved ->
-                                                                    if compareDifficulty difficulty saved == GT then
-                                                                        difficulty
-
-                                                                    else
-                                                                        saved
-                                                                )
-                                                            |> Maybe.withDefault difficulty
-                                                            |> Just
-                                                in
-                                                if savedType == problemType then
-                                                    merged
+                                            justIfProblem fieldType d =
+                                                if fieldType == problemType then
+                                                    Just d
 
                                                 else
-                                                    savedProgress
+                                                    Nothing
+
+                                            newProgress =
+                                                { addSub =
+                                                    difficulty
+                                                        |> justIfProblem AddSub
+                                                , mul =
+                                                    difficulty
+                                                        |> justIfProblem Mul
+                                                }
                                         in
-                                        Just
-                                            { addSub =
-                                                progress
-                                                    |> .addSub
-                                                    |> mergeIfCorrectProblem AddSub
-                                            , mul =
-                                                progress
-                                                    |> .mul
-                                                    |> mergeIfCorrectProblem Mul
-                                            }
+                                        Just <|
+                                            mergeProgress progress newProgress
                                     )
                     }
             in
