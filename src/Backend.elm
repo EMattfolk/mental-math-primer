@@ -38,8 +38,12 @@ update msg model =
     case msg of
         ClientConnected sessionId clientId ->
             ( model
-            , sendToFrontend clientId <|
-                SetProgress (getProgress sessionId model)
+            , Cmd.batch
+                [ sendToFrontend clientId <|
+                    SetProgress (getProgress sessionId model)
+                , sendToFrontend clientId <|
+                    SetLoggedIn (model.sessionToProgressId |> Dict.member sessionId)
+                ]
             )
 
         SendProblem clientId problem ->
@@ -65,8 +69,11 @@ update msg model =
                             model
             in
             ( newModel
-            , sendToFrontend clientId <|
-                SetProgress (getProgress sessionId newModel)
+            , Cmd.batch
+                [ sendToFrontend clientId <|
+                    SetProgress (getProgress sessionId newModel)
+                , sendToFrontend clientId <| SetLoggedIn True
+                ]
             )
 
 
@@ -90,6 +97,24 @@ updateFromFrontend sessionId clientId msg model =
                 , tracker = Nothing
                 , expect = Http.expectJson (LoggedIn sessionId clientId) (field "sub" string)
                 }
+            )
+
+        LogOut ->
+            let
+                newModel =
+                    { model
+                        | sessionToProgressId =
+                            model.sessionToProgressId
+                                |> Dict.remove sessionId
+                    }
+            in
+            ( newModel
+            , Cmd.batch
+                [ sendToFrontend clientId <|
+                    SetProgress (getProgress sessionId newModel)
+                , sendToFrontend clientId <|
+                    SetLoggedIn False
+                ]
             )
 
         SaveProgress problemType difficulty ->

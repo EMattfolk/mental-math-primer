@@ -53,8 +53,9 @@ init url key =
             , remainingTime = 10.0
             }
       , solvedProblems = 0
-      , progress = emptyProgress
       , clientId = ""
+      , progress = emptyProgress
+      , loggedIn = False
       , navigation =
             { url = url
             , key = key
@@ -147,6 +148,9 @@ update msg model =
                 |> sendToBackend
             )
 
+        StartLogOut ->
+            ( model, sendToBackend LogOut )
+
         FrontendNoop ->
             ( model, Cmd.none )
 
@@ -159,6 +163,9 @@ updateFromBackend msg model =
 
         SetProgress progress ->
             ( { model | progress = progress }, Cmd.none )
+
+        SetLoggedIn loggedIn ->
+            ( { model | loggedIn = loggedIn }, Cmd.none )
 
 
 applyProblemSpecs : Model -> (ProblemType -> Difficulty -> ToBackend) -> ToBackend
@@ -337,6 +344,13 @@ menuView model =
                 , difficultyButton Hard [ text "Hard" ]
                 , difficultyButton Impossible [ text "Impossible" ]
                 ]
+
+        loginButton =
+            if model.loggedIn then
+                themedButton [ onClick StartLogOut ] [ text "Sign out" ]
+
+            else
+                themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
     in
     vdiv []
         [ hdiv
@@ -347,7 +361,7 @@ menuView model =
             [ text "Mental Math Primer" ]
         , listItem AddSub "+-"
         , listItem Mul "*"
-        , themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
+        , loginButton
         ]
 
 

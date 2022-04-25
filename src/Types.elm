@@ -20,6 +20,7 @@ type alias FrontendModel =
     , solvedProblems : Int
     , clientId : String
     , progress : Progress
+    , loggedIn : Bool
     , navigation :
         { url : Url
         , key : Key
@@ -34,12 +35,14 @@ type FrontendMsg
     | PushRoute Route
     | Load String
     | UrlChanged Url
+    | StartLogOut
 
 
 type ToBackend
     = GetNewProblem ProblemType Difficulty
     | SaveProgress ProblemType Difficulty
     | LogIn String
+    | LogOut
 
 
 type BackendMsg
@@ -51,6 +54,7 @@ type BackendMsg
 type ToFrontend
     = SetProblem Problem
     | SetProgress Progress
+    | SetLoggedIn Bool
 
 
 type alias FrontendApp =
