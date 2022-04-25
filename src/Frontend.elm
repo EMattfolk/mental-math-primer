@@ -67,7 +67,7 @@ init url key =
 
         Authorize access_token ->
             Cmd.batch
-                [ sendToBackend (LogIn (access_token |> Maybe.withDefault ""))
+                [ sendToBackend (Login (access_token |> Maybe.withDefault ""))
                 , pushRoute key Home
                 ]
 
@@ -148,8 +148,8 @@ update msg model =
                 |> sendToBackend
             )
 
-        StartLogOut ->
-            ( model, sendToBackend LogOut )
+        StartLogout ->
+            ( model, sendToBackend Logout )
 
         FrontendNoop ->
             ( model, Cmd.none )
@@ -347,7 +347,7 @@ menuView model =
 
         loginButton =
             if model.loggedIn then
-                themedButton [ onClick StartLogOut ] [ text "Sign out" ]
+                themedButton [ onClick StartLogout ] [ text "Sign out" ]
 
             else
                 themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]

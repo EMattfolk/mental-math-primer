@@ -102,7 +102,7 @@ updateFromFrontend sessionId clientId msg model =
             , Random.generate (SendProblem clientId) (randomProblem problemType difficulty)
             )
 
-        LogIn access_token ->
+        Login access_token ->
             ( model
             , Http.request
                 { method = "GET"
@@ -116,7 +116,7 @@ updateFromFrontend sessionId clientId msg model =
                 }
             )
 
-        LogOut ->
+        Logout ->
             let
                 newModel =
                     { model

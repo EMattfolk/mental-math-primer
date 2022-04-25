@@ -35,14 +35,14 @@ type FrontendMsg
     | PushRoute Route
     | Load String
     | UrlChanged Url
-    | StartLogOut
+    | StartLogout
 
 
 type ToBackend
     = GetNewProblem ProblemType Difficulty
     | SaveProgress ProblemType Difficulty
-    | LogIn String
-    | LogOut
+    | Login String
+    | Logout
 
 
 type BackendMsg
