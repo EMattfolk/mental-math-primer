@@ -301,6 +301,12 @@ menuView model =
                         Mul ->
                             .mul
 
+                        Sqrt ->
+                            .sqrt
+
+                        Exponent ->
+                            .exponent
+
                 difficultyBorder difficulty =
                     case
                         model.progress
@@ -356,6 +362,8 @@ menuView model =
             [ text "Mental Math Primer" ]
         , listItem AddSub "+-"
         , listItem Mul "*"
+        , listItem Sqrt "√x"
+        , listItem Exponent "x²"
         , loginButton
         ]
 

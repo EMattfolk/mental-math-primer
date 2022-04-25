@@ -166,6 +166,12 @@ updateFromFrontend sessionId clientId msg model =
                                                 , mul =
                                                     difficulty
                                                         |> justIfProblem Mul
+                                                , sqrt =
+                                                    difficulty
+                                                        |> justIfProblem Sqrt
+                                                , exponent =
+                                                    difficulty
+                                                        |> justIfProblem Exponent
                                                 }
                                         in
                                         Just <|

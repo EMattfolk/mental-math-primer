@@ -22,6 +22,16 @@ route =
         , map (ProblemPage Mul Medium) (s "multiplication" </> s "medium")
         , map (ProblemPage Mul Hard) (s "multiplication" </> s "hard")
         , map (ProblemPage Mul Impossible) (s "multiplication" </> s "impossible")
+        , map (ProblemPage Sqrt Trivial) (s "square-root" </> s "trivial")
+        , map (ProblemPage Sqrt Easy) (s "square-root" </> s "easy")
+        , map (ProblemPage Sqrt Medium) (s "square-root" </> s "medium")
+        , map (ProblemPage Sqrt Hard) (s "square-root" </> s "hard")
+        , map (ProblemPage Sqrt Impossible) (s "square-root" </> s "impossible")
+        , map (ProblemPage Exponent Trivial) (s "exponent" </> s "trivial")
+        , map (ProblemPage Exponent Easy) (s "exponent" </> s "easy")
+        , map (ProblemPage Exponent Medium) (s "exponent" </> s "medium")
+        , map (ProblemPage Exponent Hard) (s "exponent" </> s "hard")
+        , map (ProblemPage Exponent Impossible) (s "exponent" </> s "impossible")
         ]
 
 
@@ -59,6 +69,12 @@ pushRoute key r =
 
                             Mul ->
                                 "multiplication"
+
+                            Sqrt ->
+                                "square-root"
+
+                            Exponent ->
+                                "exponent"
                        )
                     ++ "/"
                     ++ (case difficulty of

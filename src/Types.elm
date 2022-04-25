@@ -87,12 +87,16 @@ type alias Problem =
 type alias Progress =
     { addSub : Maybe Difficulty
     , mul : Maybe Difficulty
+    , sqrt : Maybe Difficulty
+    , exponent : Maybe Difficulty
     }
 
 
 type ProblemType
     = AddSub
     | Mul
+    | Sqrt
+    | Exponent
 
 
 type Difficulty

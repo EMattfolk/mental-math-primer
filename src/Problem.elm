@@ -1,9 +1,12 @@
 module Problem exposing (..)
 
+import Dict
 import Random exposing (Generator)
 import Types exposing (..)
 
 
+{-| TODO: Generalize :O
+-}
 offsets : Random.Generator ( Int, Int )
 offsets =
     Random.pair (Random.int -5 5) (Random.int -5 5)
@@ -22,6 +25,8 @@ offsets =
 type Fragment
     = Addition Fragment Fragment
     | Multiplication Fragment Fragment
+    | SquareRoot Fragment
+    | Power Fragment Fragment
     | Constant Int
 
 
@@ -33,6 +38,12 @@ eval fragment =
 
         Multiplication f1 f2 ->
             eval f1 * eval f2
+
+        SquareRoot f ->
+            f |> eval |> toFloat |> sqrt |> floor
+
+        Power f1 f2 ->
+            eval f1 ^ eval f2
 
         Constant c ->
             c
@@ -56,8 +67,34 @@ toString fragment =
         Multiplication f1 f2 ->
             toString f1 ++ " * " ++ toString f2
 
+        SquareRoot f ->
+            "√" ++ toString f
+
+        Power f1 f2 ->
+            toString f1 ++ toSuperscript (toString f2)
+
         Constant c ->
             String.fromInt c
+
+
+toSuperscript : String -> String
+toSuperscript s =
+    let
+        tr =
+            Dict.fromList
+                [ ( '0', '⁰' )
+                , ( '1', '¹' )
+                , ( '2', '²' )
+                , ( '3', '³' )
+                , ( '4', '⁴' )
+                , ( '5', '⁵' )
+                , ( '6', '⁶' )
+                , ( '7', '⁷' )
+                , ( '8', '⁸' )
+                , ( '9', '⁹' )
+                ]
+    in
+    String.map (\c -> tr |> Dict.get c |> Maybe.withDefault c) s
 
 
 emptyProblem : Problem
@@ -157,6 +194,63 @@ mulProblem difficulty =
         |> Random.andThen toProblemGenerator
 
 
+sqrtProblem : Difficulty -> Generator Problem
+sqrtProblem difficulty =
+    let
+        n =
+            case difficulty of
+                Trivial ->
+                    Random.int 1 15
+
+                Easy ->
+                    Random.int 1 15
+
+                Medium ->
+                    Random.int 1 15
+
+                Hard ->
+                    Random.int 1 15
+
+                Impossible ->
+                    Random.int 1 15
+
+        fragment =
+            Random.map (\a -> SquareRoot (Constant (a ^ 2))) n
+    in
+    fragment
+        |> Random.andThen toProblemGenerator
+
+
+exponentProblem : Difficulty -> Generator Problem
+exponentProblem difficulty =
+    let
+        n =
+            case difficulty of
+                Trivial ->
+                    Random.int 1 4
+
+                Easy ->
+                    Random.int 1 6
+
+                Medium ->
+                    Random.int 1 10
+
+                Hard ->
+                    Random.int 1 12
+
+                Impossible ->
+                    Random.int 1 16
+
+        exp =
+            Random.int 2 4
+
+        fragment =
+            Random.map2 (\a b -> Power (Constant a) (Constant b)) n exp
+    in
+    fragment
+        |> Random.andThen toProblemGenerator
+
+
 randomProblem : ProblemType -> Difficulty -> Generator Problem
 randomProblem problemType =
     case problemType of
@@ -165,6 +259,12 @@ randomProblem problemType =
 
         Mul ->
             mulProblem
+
+        Sqrt ->
+            sqrtProblem
+
+        Exponent ->
+            exponentProblem
 
 
 {-| A "list" of the permutations of the tuple (0, 1, 2)
@@ -258,6 +358,8 @@ emptyProgress : Progress
 emptyProgress =
     { addSub = Nothing
     , mul = Nothing
+    , sqrt = Nothing
+    , exponent = Nothing
     }
 
 
@@ -287,4 +389,6 @@ mergeProgress p1 p2 =
     in
     { addSub = mergeMaybeDifficulty p1.addSub p2.addSub
     , mul = mergeMaybeDifficulty p1.mul p2.mul
+    , sqrt = mergeMaybeDifficulty p1.sqrt p2.sqrt
+    , exponent = mergeMaybeDifficulty p1.exponent p2.exponent
     }
