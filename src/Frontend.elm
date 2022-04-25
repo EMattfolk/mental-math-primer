@@ -245,6 +245,8 @@ themedButton attributes elements =
             , color theme.primary
             , border3 (px 1) solid theme.primary
             , boxShadow4 (px 0) (px 0) (px 10) theme.accent
+            , borderRadius (em 10)
+            , cursor pointer
             ]
             :: attributes
         )
@@ -262,11 +264,9 @@ choiceButton isCorrect choice =
                 FrontendNoop
             )
         , css
-            [ borderRadius (em 10)
-            , fontSize (em 2)
+            [ fontSize (em 2)
             , margin (em 1)
             , padding (em 0.5)
-            , cursor pointer
             ]
         ]
         [ text choice ]
@@ -319,8 +319,6 @@ menuView model =
                              , width (em 7)
                              , margin (em 1)
                              , padding (em 1)
-                             , borderRadius (em 10)
-                             , cursor pointer
                              ]
                                 ++ difficultyBorder difficulty
                             )
@@ -349,7 +347,7 @@ menuView model =
             [ text "Mental Math Primer" ]
         , listItem AddSub "+-"
         , listItem Mul "*"
-        , a [ href authUrl ] [ text "Log in with Google" ]
+        , themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
         ]
 
 
