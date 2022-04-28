@@ -249,6 +249,9 @@ themedButton attributes elements =
             , boxShadow4 (px 0) (px 0) (px 10) theme.accent
             , borderRadius (em 10)
             , cursor pointer
+            , fontSize (em 1)
+            , padding (em 1)
+            , margin (em 1)
             ]
             :: attributes
         )
@@ -267,7 +270,6 @@ choiceButton isCorrect choice =
             )
         , css
             [ fontSize (em 2)
-            , margin (em 1)
             , padding (em 0.5)
             ]
         ]
@@ -322,23 +324,12 @@ menuView model =
                 difficultyButton : Difficulty -> List (Html FrontendMsg) -> Html FrontendMsg
                 difficultyButton difficulty =
                     themedButton
-                        [ css
-                            ([ fontSize (em 0.25) -- To parry (em 4) below
-                             , width (em 7)
-                             , margin (em 1)
-                             , padding (em 1)
-                             ]
-                                ++ difficultyBorder difficulty
-                            )
+                        [ css <| width (em 7) :: difficultyBorder difficulty
                         , onClick (PushRoute <| ProblemPage problemType difficulty)
                         ]
             in
-            hdiv
-                [ css
-                    [ fontSize (em 4)
-                    ]
-                ]
-                [ text title
+            hdiv []
+                [ div [ css [ fontSize (em 3) ] ] [ text title ]
                 , difficultyButton Trivial [ text "Trivial" ]
                 , difficultyButton Easy [ text "Easy" ]
                 , difficultyButton Medium [ text "Medium" ]
@@ -364,7 +355,10 @@ menuView model =
         , listItem Mul "*"
         , listItem Sqrt "√x"
         , listItem Exponent "x²"
-        , loginButton
+        , hdiv []
+            [ themedButton [] [ text "What is this?" ]
+            , loginButton
+            ]
         ]
 
 
