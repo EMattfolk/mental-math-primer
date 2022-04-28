@@ -176,29 +176,30 @@ applyProblemSpecs model toBackend =
 flexedDiv :
     Int
     -> { compatible | value : String, flexDirection : Compatible }
-    -> List (Attribute FrontendMsg)
+    -> List Style
     -> List (Html FrontendMsg)
     -> Html FrontendMsg
-flexedDiv size direction attributes elements =
+flexedDiv size direction style elements =
     div
-        (css
-            [ displayFlex
-            , flex (int size)
-            , flexDirection direction
-            , alignItems center
-            , justifyContent center
-            ]
-            :: attributes
-        )
+        [ css
+            ([ displayFlex
+             , flex (int size)
+             , flexDirection direction
+             , alignItems center
+             , justifyContent center
+             ]
+                ++ style
+            )
+        ]
         elements
 
 
-vdiv : List (Attribute FrontendMsg) -> List (Html FrontendMsg) -> Html FrontendMsg
+vdiv : List Style -> List (Html FrontendMsg) -> Html FrontendMsg
 vdiv =
     flexedDiv 1 column
 
 
-hdiv : List (Attribute FrontendMsg) -> List (Html FrontendMsg) -> Html FrontendMsg
+hdiv : List Style -> List (Html FrontendMsg) -> Html FrontendMsg
 hdiv =
     flexedDiv 1 row
 
@@ -279,10 +280,10 @@ choiceButton isCorrect choice =
 problemBox : Problem -> Int -> Html FrontendMsg
 problemBox { statement, choices, correct, remainingTime } solvedProblems =
     vdiv []
-        [ vdiv [ css [ flex (int 2) ] ] [ statementText statement ]
+        [ vdiv [ flex (int 2) ] [ statementText statement ]
         , vdiv [] [ solvedDots solvedProblems ]
         , timerText remainingTime
-        , hdiv [ css [ flex (int 2) ] ] <|
+        , hdiv [ flex (int 2) ] <|
             List.indexedMap
                 (\i choice -> choiceButton (i == correct) choice)
                 choices
@@ -345,12 +346,7 @@ menuView model =
                 themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
     in
     vdiv []
-        [ hdiv
-            [ css
-                [ fontSize (em 3)
-                ]
-            ]
-            [ text "Mental Math Primer" ]
+        [ hdiv [ fontSize (em 3) ] [ text "Mental Math Primer" ]
         , listItem AddSub "+-"
         , listItem Mul "*"
         , listItem Sqrt "√x"
@@ -370,10 +366,8 @@ problemView model =
 view : Model -> Html FrontendMsg
 view model =
     vdiv
-        [ css
-            [ backgroundColor theme.background
-            , color theme.primary
-            ]
+        [ backgroundColor theme.background
+        , color theme.primary
         ]
         [ Html.Styled.node "style" [] [ text bodyCss ]
         , case toRoute model.navigation.url of
