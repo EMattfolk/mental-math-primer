@@ -109,6 +109,7 @@ type Difficulty
 
 type Route
     = Home
+    | About
     | Authorize (Maybe String)
     | ProblemPage ProblemType Difficulty
     | NotFound

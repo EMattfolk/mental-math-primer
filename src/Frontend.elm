@@ -356,7 +356,7 @@ menuView model =
         , listItem Sqrt "√x"
         , listItem Exponent "x²"
         , hdiv []
-            [ themedButton [] [ text "What is this?" ]
+            [ themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
             , loginButton
             ]
         ]
@@ -380,6 +380,9 @@ view model =
             Home ->
                 menuView model
 
+            About ->
+                vdiv [] [ text "a" ]
+
             Authorize _ ->
                 menuView model
 
@@ -387,7 +390,7 @@ view model =
                 problemView model
 
             NotFound ->
-                text "404: Page not found!"
+                vdiv [] [ text "404: Page not found!" ]
         ]
 
 

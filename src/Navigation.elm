@@ -11,6 +11,7 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ map Home top
+        , map About (s "about")
         , map Authorize (s "authorize" <?> Query.string "access_token")
         , map (ProblemPage AddSub Trivial) (s "addition" </> s "trivial")
         , map (ProblemPage AddSub Easy) (s "addition" </> s "easy")
@@ -56,6 +57,9 @@ pushRoute key r =
         case r of
             Home ->
                 "/"
+
+            About ->
+                "about"
 
             -- Should only be pushed by Auth0
             Authorize _ ->
