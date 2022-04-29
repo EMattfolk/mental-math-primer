@@ -1,6 +1,6 @@
 module Frontend exposing (..)
 
-import Auth0 exposing (Auth0Config, auth0AuthorizeURL)
+import Auth
 import Browser
 import Browser.Navigation exposing (Key, load)
 import Config exposing (Env(..))
@@ -343,7 +343,7 @@ menuView model =
                 themedButton [ onClick StartLogout ] [ text "Sign out" ]
 
             else
-                themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
+                themedButton [ onClick (Load Auth.authorizeUrl) ] [ text "Sign in with Google" ]
 
         aboutButton =
             themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
@@ -467,22 +467,6 @@ theme =
     , green = rgb 76 185 68
     , red = rgb 254 74 73
     }
-
-
-authUrl : String
-authUrl =
-    auth0AuthorizeURL
-        (Auth0Config Config.auth0Url "pJsQXQKLDptayHhSm3vt42jOJPYFx1xT")
-        "token"
-        (case Config.mode of
-            Development ->
-                "http://localhost:8000/authorize"
-
-            Production ->
-                "https://mental-math-primer.lamdera.app/authorize"
-        )
-        [ "openid", "name", "email" ]
-        (Just "google-oauth2")
 
 
 subscriptions : Model -> Sub FrontendMsg

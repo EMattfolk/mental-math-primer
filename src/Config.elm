@@ -19,8 +19,3 @@ mode =
 
         LamderaEnv.Production ->
             Production
-
-
-auth0Url : String
-auth0Url =
-    "https://dev-vtcno-ac.us.auth0.com"

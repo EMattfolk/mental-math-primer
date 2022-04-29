@@ -1,5 +1,6 @@
 module Backend exposing (app, init)
 
+import Auth
 import Config
 import Dict
 import Http
@@ -106,7 +107,7 @@ updateFromFrontend sessionId clientId msg model =
             ( model
             , Http.request
                 { method = "GET"
-                , url = Config.auth0Url ++ "/userinfo"
+                , url = Auth.userinfoUrl
                 , headers =
                     [ Http.header "Authorization" ("Bearer " ++ access_token) ]
                 , body = Http.emptyBody
