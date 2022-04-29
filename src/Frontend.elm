@@ -272,6 +272,11 @@ choiceButton isCorrect choice =
         , css
             [ fontSize (em 2)
             , padding (em 0.5)
+            , if Config.mode == Development && isCorrect then
+                border3 (px 2) solid theme.green
+
+              else
+                border3 (px 1) solid theme.primary
             ]
         ]
         [ text choice ]
