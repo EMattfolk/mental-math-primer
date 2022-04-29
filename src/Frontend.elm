@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation exposing (Key, load)
 import Config exposing (Env(..))
 import Css exposing (..)
-import Html.Styled exposing (Attribute, Html, button, div, h1, h2, li, p, text, toUnstyled, ul)
+import Html.Styled exposing (Attribute, Html, button, div, h1, li, p, span, text, toUnstyled, ul)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
@@ -293,8 +293,8 @@ problemBox { statement, choices, correct, remainingTime } solvedProblems =
 menuView : Model -> Html FrontendMsg
 menuView model =
     let
-        listItem : ProblemType -> String -> Html FrontendMsg
-        listItem problemType title =
+        problemSet : ProblemType -> String -> Html FrontendMsg
+        problemSet problemType title =
             let
                 accessor =
                     case problemType of
@@ -344,15 +344,34 @@ menuView model =
 
             else
                 themedButton [ onClick (Load authUrl) ] [ text "Sign in with Google" ]
+
+        aboutButton =
+            themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
+
+        scoreText =
+            div
+                [ css
+                    [ margin (em 1)
+                    , fontSize (em 2.5)
+                    , textShadow4 (px 0) (px 0) (px 10) theme.accent
+                    , fontFamily monospace
+                    ]
+                ]
+                [ text "Score: "
+                , span
+                    [ css [] ]
+                    [ text "123" ]
+                ]
     in
     vdiv []
         [ hdiv [ fontSize (em 3) ] [ text "Mental Math Primer" ]
-        , listItem AddSub "+-"
-        , listItem Mul "*"
-        , listItem Sqrt "√x"
-        , listItem Exponent "x²"
+        , problemSet AddSub "+-"
+        , problemSet Mul "*"
+        , problemSet Sqrt "√x"
+        , problemSet Exponent "x²"
         , hdiv []
-            [ themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
+            [ scoreText
+            , aboutButton
             , loginButton
             ]
         ]
