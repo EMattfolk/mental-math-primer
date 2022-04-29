@@ -356,7 +356,7 @@ menuView model =
                         ]
             in
             hdiv []
-                [ div [ css [ fontSize (em 3) ] ] [ text title ]
+                [ div [ css [ fontSize (em 3), width (em 1.5), textAlign center ] ] [ text title ]
                 , difficultyButton Trivial [ text "Trivial" ]
                 , difficultyButton Easy [ text "Easy" ]
                 , difficultyButton Medium [ text "Medium" ]
