@@ -141,46 +141,46 @@ updateFromFrontend sessionId clientId msg model =
                         |> Dict.get sessionId
                         |> Maybe.withDefault sessionId
 
+                newProgress =
+                    model.progress
+                        |> Dict.update id
+                            (\maybeProgress ->
+                                let
+                                    progress =
+                                        maybeProgress
+                                            |> Maybe.withDefault emptyProgress
+
+                                    justIfProblem fieldType d =
+                                        if fieldType == problemType then
+                                            Just d
+
+                                        else
+                                            Nothing
+
+                                    gainedProgress =
+                                        { addSub =
+                                            difficulty
+                                                |> justIfProblem AddSub
+                                        , mul =
+                                            difficulty
+                                                |> justIfProblem Mul
+                                        , sqrt =
+                                            difficulty
+                                                |> justIfProblem Sqrt
+                                        , exponent =
+                                            difficulty
+                                                |> justIfProblem Exponent
+                                        , score =
+                                            difficultyScore difficulty
+                                                |> .set
+                                        }
+                                in
+                                Just <|
+                                    mergeProgress progress gainedProgress
+                            )
+
                 newModel =
-                    { model
-                        | progress =
-                            model.progress
-                                |> Dict.update id
-                                    (\maybeProgress ->
-                                        let
-                                            progress =
-                                                maybeProgress
-                                                    |> Maybe.withDefault emptyProgress
-
-                                            justIfProblem fieldType d =
-                                                if fieldType == problemType then
-                                                    Just d
-
-                                                else
-                                                    Nothing
-
-                                            newProgress =
-                                                { addSub =
-                                                    difficulty
-                                                        |> justIfProblem AddSub
-                                                , mul =
-                                                    difficulty
-                                                        |> justIfProblem Mul
-                                                , sqrt =
-                                                    difficulty
-                                                        |> justIfProblem Sqrt
-                                                , exponent =
-                                                    difficulty
-                                                        |> justIfProblem Exponent
-                                                , score =
-                                                    difficultyScore difficulty
-                                                        |> .set
-                                                }
-                                        in
-                                        Just <|
-                                            mergeProgress progress newProgress
-                                    )
-                    }
+                    { model | progress = newProgress }
             in
             ( newModel
             , sendToFrontend clientId <|
