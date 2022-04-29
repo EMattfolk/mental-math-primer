@@ -4,13 +4,17 @@ import Dict
 import Evergreen.V6.Types as Old
 import Evergreen.V9.Types as New
 import Lamdera.Migrations exposing (..)
-import Problem exposing (emptyProblem)
 
 
 frontendModel : Old.FrontendModel -> ModelMigration New.FrontendModel New.FrontendMsg
 frontendModel old =
     ModelMigrated
-        ( { problem = emptyProblem
+        ( { problem =
+                { statement = ""
+                , choices = []
+                , correct = 0
+                , remainingTime = 10.0
+                }
           , solvedProblems = old.solvedProblems
           , clientId = old.clientId
           , loggedIn = False
