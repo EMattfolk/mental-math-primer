@@ -172,11 +172,45 @@ updateFromFrontend sessionId clientId msg model =
                                                 |> justIfProblem Exponent
                                         , score =
                                             difficultyScore difficulty
-                                                |> .set
+                                                |> (\score -> score.set + 10 * score.single)
                                         }
                                 in
                                 Just <|
                                     mergeProgress progress gainedProgress
+                            )
+
+                newModel =
+                    { model | progress = newProgress }
+            in
+            ( newModel
+            , sendToFrontend clientId <|
+                SetProgress (getProgress sessionId newModel)
+            )
+
+        PartialCompletion difficulty solvedProblems ->
+            let
+                id =
+                    model.sessionToProgressId
+                        |> Dict.get sessionId
+                        |> Maybe.withDefault sessionId
+
+                newProgress =
+                    model.progress
+                        |> Dict.update id
+                            (\maybeProgress ->
+                                let
+                                    progress =
+                                        maybeProgress
+                                            |> Maybe.withDefault emptyProgress
+                                in
+                                Just
+                                    { progress
+                                        | score =
+                                            difficultyScore difficulty
+                                                |> .single
+                                                |> (*) solvedProblems
+                                                |> (+) progress.score
+                                    }
                             )
 
                 newModel =

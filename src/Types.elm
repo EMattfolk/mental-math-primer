@@ -29,18 +29,20 @@ type alias FrontendModel =
 
 
 type FrontendMsg
-    = ProblemSolved
+    = Correct
+    | Incorrect
     | Tick Time.Posix
-    | FrontendNoop
     | PushRoute Route
     | Load String
     | UrlChanged Url
     | StartLogout
+    | FrontendNoop
 
 
 type ToBackend
     = GetNewProblem ProblemType Difficulty
     | SaveProgress ProblemType Difficulty
+    | PartialCompletion Difficulty Int
     | Login String
     | Logout
 

@@ -74,7 +74,7 @@ init url key =
 update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
-        ProblemSolved ->
+        Correct ->
             -- hack
             ( { model | solvedProblems = modBy 10 (model.solvedProblems + 1) }
             , if model.solvedProblems == 9 then
@@ -89,6 +89,15 @@ update msg model =
                 GetNewProblem
                     |> applyProblemSpecs model
                     |> sendToBackend
+            )
+
+        Incorrect ->
+            ( { model | solvedProblems = 0 }
+            , Cmd.batch
+                [ pushRoute model.navigation.key Home
+                , sendToBackend <|
+                    PartialCompletion (getDifficulty model) model.solvedProblems
+                ]
             )
 
         Tick _ ->
@@ -109,9 +118,11 @@ update msg model =
                         model.solvedProblems
               }
             , if problem.remainingTime == 0 then
-                GetNewProblem
-                    |> applyProblemSpecs model
-                    |> sendToBackend
+                Cmd.batch
+                    [ pushRoute model.navigation.key Home
+                    , sendToBackend <|
+                        PartialCompletion (getDifficulty model) model.solvedProblems
+                    ]
 
               else
                 Cmd.none
@@ -171,6 +182,16 @@ applyProblemSpecs model toBackend =
 
         _ ->
             toBackend AddSub Trivial
+
+
+getDifficulty : Model -> Difficulty
+getDifficulty model =
+    case toRoute model.navigation.url of
+        ProblemPage _ difficulty ->
+            difficulty
+
+        _ ->
+            Trivial
 
 
 flexedDiv :
@@ -264,10 +285,10 @@ choiceButton isCorrect choice =
     themedButton
         [ onClick
             (if isCorrect then
-                ProblemSolved
+                Correct
 
              else
-                FrontendNoop
+                Incorrect
             )
         , css
             [ fontSize (em 2)
