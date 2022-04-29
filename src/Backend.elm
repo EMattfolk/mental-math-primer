@@ -1,12 +1,11 @@
 module Backend exposing (app, init)
 
 import Auth
-import Config
 import Dict
 import Http
 import Json.Decode exposing (field, string)
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import Problem exposing (emptyProgress, mergeProgress, randomProblem)
+import Problem exposing (difficultyScore, emptyProgress, mergeProgress, randomProblem)
 import Random
 import Types exposing (..)
 
@@ -173,6 +172,9 @@ updateFromFrontend sessionId clientId msg model =
                                                 , exponent =
                                                     difficulty
                                                         |> justIfProblem Exponent
+                                                , score =
+                                                    difficultyScore difficulty
+                                                        |> .set
                                                 }
                                         in
                                         Just <|

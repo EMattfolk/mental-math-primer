@@ -331,27 +331,35 @@ permute ( i0, i1, i2 ) list =
             []
 
 
+difficultyValue : Difficulty -> Int
+difficultyValue difficulty =
+    case difficulty of
+        Trivial ->
+            0
+
+        Easy ->
+            1
+
+        Medium ->
+            2
+
+        Hard ->
+            3
+
+        Impossible ->
+            4
+
+
+difficultyScore : Difficulty -> { single : Int, set : Int }
+difficultyScore difficulty =
+    { single = difficultyValue difficulty + 1
+    , set = (difficultyValue difficulty + 1) * 5
+    }
+
+
 compareDifficulty : Difficulty -> Difficulty -> Order
 compareDifficulty d1 d2 =
-    let
-        value d =
-            case d of
-                Trivial ->
-                    0
-
-                Easy ->
-                    1
-
-                Medium ->
-                    2
-
-                Hard ->
-                    3
-
-                Impossible ->
-                    4
-    in
-    compare (value d1) (value d2)
+    compare (difficultyValue d1) (difficultyValue d2)
 
 
 emptyProgress : Progress
@@ -360,6 +368,7 @@ emptyProgress =
     , mul = Nothing
     , sqrt = Nothing
     , exponent = Nothing
+    , score = 0
     }
 
 
@@ -391,4 +400,5 @@ mergeProgress p1 p2 =
     , mul = mergeMaybeDifficulty p1.mul p2.mul
     , sqrt = mergeMaybeDifficulty p1.sqrt p2.sqrt
     , exponent = mergeMaybeDifficulty p1.exponent p2.exponent
+    , score = p1.score + p2.score
     }

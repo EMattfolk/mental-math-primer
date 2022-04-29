@@ -360,7 +360,7 @@ menuView model =
                 [ text "Score: "
                 , span
                     [ css [] ]
-                    [ text "123" ]
+                    [ text <| String.fromInt model.progress.score ]
                 ]
     in
     vdiv []

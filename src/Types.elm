@@ -89,6 +89,7 @@ type alias Progress =
     , mul : Maybe Difficulty
     , sqrt : Maybe Difficulty
     , exponent : Maybe Difficulty
+    , score : Int
     }
 
 
