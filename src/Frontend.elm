@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation exposing (Key, load)
 import Config exposing (Env(..))
 import Css exposing (..)
-import Html.Styled exposing (Attribute, Html, button, div, text, toUnstyled)
+import Html.Styled exposing (Attribute, Html, button, div, h1, h2, li, p, text, toUnstyled, ul)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
@@ -363,6 +363,45 @@ problemView model =
     problemBox model.problem model.solvedProblems
 
 
+aboutView : Html FrontendMsg
+aboutView =
+    let
+        t element string =
+            element [] [ text string ]
+    in
+    vdiv [ alignItems flexStart, maxWidth (em 30) ]
+        [ t h1 "What is Mental Math Primer?"
+        , t p """
+              Simply put: Mental Math Primer is a tool that can be used to
+              improve your ability to perform mental math. It is geared towards
+              students practicing high school level math, but may be used by
+              anyone looking to improve their math skills.
+              """
+        , t p """
+              So why would you want to want to become better at something so
+              seemingly useless? There might be a few reasons: 
+              """
+        , ul []
+            [ t li "You are studying for college entrance exams"
+            , t li "You make mistakes doing simple calculations"
+            , t li "You are lazy like me and want to spend less time doing math"
+            ]
+        , t p """
+              If you are here for any of the above reasons, let me explain how
+              this simple webapp can help you. First, let me ask you this: is
+              it possible to be good at something without first mastering the
+              basics of said something? No matter what you answer, fact is that
+              being able to perform quick and accurate calculations is an
+              advantage when studying mathematics. Mental Math Primer's main
+              goal is to make it fun to become faster and more accurate doing
+              "simple" calculations, through gamification.
+              """
+        , t p """
+              // Erik Mattfolk
+              """
+        ]
+
+
 view : Model -> Html FrontendMsg
 view model =
     vdiv
@@ -375,7 +414,7 @@ view model =
                 menuView model
 
             About ->
-                vdiv [] [ text "a" ]
+                aboutView
 
             Authorize _ ->
                 menuView model
