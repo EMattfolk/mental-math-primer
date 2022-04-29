@@ -4,17 +4,26 @@ import Dict
 import Evergreen.V10.Types as New
 import Evergreen.V9.Types as Old
 import Lamdera.Migrations exposing (..)
-import Problem exposing (emptyProblem, emptyProgress)
 
 
 frontendModel : Old.FrontendModel -> ModelMigration New.FrontendModel New.FrontendMsg
 frontendModel old =
     ModelMigrated
-        ( { problem = emptyProblem
+        ( { problem =
+                { statement = ""
+                , choices = []
+                , correct = 0
+                , remainingTime = 10.0
+                }
           , solvedProblems = old.solvedProblems
           , clientId = old.clientId
           , loggedIn = False
-          , progress = emptyProgress
+          , progress =
+                { addSub = Nothing
+                , mul = Nothing
+                , sqrt = Nothing
+                , exponent = Nothing
+                }
           , navigation = old.navigation
           }
         , Cmd.none
@@ -22,7 +31,7 @@ frontendModel old =
 
 
 backendModel : Old.BackendModel -> ModelMigration New.BackendModel New.BackendMsg
-backendModel old =
+backendModel _ =
     ModelMigrated
         ( { progress = Dict.empty, sessionToProgressId = Dict.empty }
         , Cmd.none
