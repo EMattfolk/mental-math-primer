@@ -266,31 +266,45 @@ sqrtProblem difficulty =
         |> Random.andThen toProblemGenerator
 
 
+boundedExponent : Int -> Generator Fragment
+boundedExponent bound =
+    let
+        base =
+            Random.int 2 16
+
+        exponent =
+            Random.int 2 11
+    in
+    Random.pair base exponent
+        |> Random.andThen
+            (\( b, e ) ->
+                if b ^ e <= bound then
+                    Random.constant (Power (Constant b) (Constant e))
+
+                else
+                    boundedExponent bound
+            )
+
+
 exponentProblem : Difficulty -> Generator Problem
 exponentProblem difficulty =
     let
-        n =
+        fragment =
             case difficulty of
                 Trivial ->
-                    Random.int 1 4
+                    boundedExponent 16
 
                 Easy ->
-                    Random.int 1 6
+                    boundedExponent 64
 
                 Medium ->
-                    Random.int 1 10
+                    boundedExponent 128
 
                 Hard ->
-                    Random.int 1 12
+                    boundedExponent 512
 
                 Impossible ->
-                    Random.int 1 16
-
-        exp =
-            Random.int 2 4
-
-        fragment =
-            Random.map2 (\a b -> Power (Constant a) (Constant b)) n exp
+                    boundedExponent 2048
     in
     fragment
         |> Random.andThen toProblemGenerator
