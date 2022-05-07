@@ -51,30 +51,22 @@ eval fragment =
 
 toString : Fragment -> String
 toString fragment =
-    case fragment of
-        Addition f1 (Constant c) ->
-            toString f1
-                ++ (if c < 0 then
-                        " - " ++ String.fromInt -c
+    String.replace "+ -" "- " <|
+        case fragment of
+            Addition f1 f2 ->
+                toString f1 ++ " + " ++ toString f2
 
-                    else
-                        " + " ++ String.fromInt c
-                   )
+            Multiplication f1 f2 ->
+                toString f1 ++ " ⋅ " ++ toString f2
 
-        Addition f1 f2 ->
-            toString f1 ++ " + " ++ toString f2
+            SquareRoot f ->
+                "√" ++ toString f
 
-        Multiplication f1 f2 ->
-            toString f1 ++ " * " ++ toString f2
+            Power f1 f2 ->
+                toString f1 ++ toSuperscript (toString f2)
 
-        SquareRoot f ->
-            "√" ++ toString f
-
-        Power f1 f2 ->
-            toString f1 ++ toSuperscript (toString f2)
-
-        Constant c ->
-            String.fromInt c
+            Constant c ->
+                String.fromInt c
 
 
 nestedFragmentGenerator :
@@ -207,22 +199,41 @@ mulProblem difficulty =
         n =
             case difficulty of
                 Trivial ->
-                    Random.int 1 5
+                    Random.int 1 10
 
                 Easy ->
-                    Random.int 1 7
+                    Random.int 1 15
 
                 Medium ->
-                    Random.int 1 9
+                    Random.int 1 15
 
                 Hard ->
-                    Random.int 1 12
+                    Random.int 1 20
 
                 Impossible ->
-                    Random.int 1 16
+                    Random.int 1 20
+
+        atoms =
+            case difficulty of
+                Trivial ->
+                    1
+
+                Easy ->
+                    1
+
+                Medium ->
+                    2
+
+                Hard ->
+                    2
+
+                Impossible ->
+                    3
 
         fragment =
-            Random.map2 (\a b -> Multiplication (Constant a) (Constant b)) n n
+            nestedFragmentGenerator atoms
+                Addition
+                (Random.map2 (\a b -> Multiplication (Constant a) (Constant b)) n n)
     in
     fragment
         |> Random.andThen toProblemGenerator
