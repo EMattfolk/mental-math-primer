@@ -7,7 +7,7 @@ import Types exposing (..)
 
 {-| TODO: Generalize :O
 -}
-offsets : Random.Generator ( Int, Int )
+offsets : Generator ( Int, Int )
 offsets =
     Random.pair (Random.int -5 5) (Random.int -5 5)
         |> Random.andThen
@@ -77,6 +77,23 @@ toString fragment =
             String.fromInt c
 
 
+nestedFragmentGenerator :
+    Int
+    -> (Fragment -> Fragment -> Fragment)
+    -> Generator Fragment
+    -> Generator Fragment
+nestedFragmentGenerator atoms operand termGenerator =
+    if atoms <= 1 then
+        termGenerator
+
+    else
+        Random.map2 operand termGenerator <|
+            nestedFragmentGenerator
+                (atoms - 1)
+                operand
+                termGenerator
+
+
 toSuperscript : String -> String
 toSuperscript s =
     let
@@ -139,29 +156,46 @@ addSubProblem difficulty =
                 Easy ->
                     Random.andThen identity <|
                         Random.weighted
-                            ( 0.75, Random.int 1 15 )
-                            [ ( 0.25, Random.int -15 -1 ) ]
+                            ( 0.75, Random.int 1 30 )
+                            [ ( 0.25, Random.int -30 -1 ) ]
 
                 Medium ->
+                    Random.andThen identity <|
+                        Random.weighted
+                            ( 0.75, Random.int 1 40 )
+                            [ ( 0.25, Random.int -40 -1 ) ]
+
+                Hard ->
                     Random.andThen identity <|
                         Random.weighted
                             ( 0.75, Random.int 1 50 )
                             [ ( 0.25, Random.int -50 -1 ) ]
 
-                Hard ->
-                    Random.andThen identity <|
-                        Random.weighted
-                            ( 0.75, Random.int 1 150 )
-                            [ ( 0.25, Random.int -150 -1 ) ]
-
                 Impossible ->
                     Random.andThen identity <|
                         Random.weighted
-                            ( 0.75, Random.int 1 500 )
-                            [ ( 0.25, Random.int -500 -1 ) ]
+                            ( 0.75, Random.int 1 99 )
+                            [ ( 0.25, Random.int -99 -1 ) ]
+
+        atoms =
+            case difficulty of
+                Trivial ->
+                    2
+
+                Easy ->
+                    2
+
+                Medium ->
+                    3
+
+                Hard ->
+                    4
+
+                Impossible ->
+                    5
 
         fragment =
-            Random.map2 (\a b -> Addition (Constant a) (Constant b)) n n
+            nestedFragmentGenerator atoms Addition (Random.map Constant n)
     in
     fragment
         |> Random.andThen toProblemGenerator
