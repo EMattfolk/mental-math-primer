@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation exposing (Key, load)
 import Config exposing (Env(..))
 import Css exposing (..)
-import Html.Styled exposing (Attribute, Html, button, div, h1, li, p, span, text, toUnstyled, ul)
+import Html.Styled exposing (Attribute, Html, button, div, h1, h2, li, p, span, text, toUnstyled, ul)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
@@ -433,7 +433,7 @@ aboutView =
             ]
         , t p """
               If you are here for any of the above reasons, let me explain how
-              this simple webapp can help you. First, let me ask you this: is
+              this simple web app can help you. First, let me ask you this: is
               it possible to be good at something without first mastering the
               basics of said something? No matter what you answer, fact is that
               being able to perform quick and accurate calculations is an
@@ -441,6 +441,12 @@ aboutView =
               goal is to make it fun to become faster and more accurate doing
               "simple" calculations, through gamification.
               """
+        , t h2 "Features"
+        , ul []
+            [ t li "Different types of problems"
+            , t li "Several difficulty levels"
+            , t li "Synced progress using a Google account"
+            ]
         , t p """
               // Erik Mattfolk
               """
