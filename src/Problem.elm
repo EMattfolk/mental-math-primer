@@ -27,6 +27,7 @@ type Fragment
     | Multiplication Fragment Fragment
     | SquareRoot Fragment
     | Power Fragment Fragment
+    | Parenthesis Fragment
     | Constant Int
 
 
@@ -44,6 +45,9 @@ eval fragment =
 
         Power f1 f2 ->
             eval f1 ^ eval f2
+
+        Parenthesis f ->
+            eval f
 
         Constant c ->
             c
@@ -64,6 +68,9 @@ toString fragment =
 
             Power f1 f2 ->
                 toString f1 ++ toSuperscript (toString f2)
+
+            Parenthesis f ->
+                "(" ++ toString f ++ ")"
 
             Constant c ->
                 String.fromInt c
@@ -242,25 +249,61 @@ mulProblem difficulty =
 sqrtProblem : Difficulty -> Generator Problem
 sqrtProblem difficulty =
     let
-        n =
+        splitSquare isSplit square =
+            if isSplit then
+                Random.int -square square
+                    |> Random.map
+                        (\v ->
+                            SquareRoot <|
+                                Parenthesis <|
+                                    Addition
+                                        (Constant v)
+                                        (Constant (square - v))
+                        )
+
+            else
+                Random.constant (SquareRoot <| Constant square)
+
+        conf =
             case difficulty of
                 Trivial ->
-                    Random.int 1 15
+                    Random.pair (Random.int 1 10) (Random.constant False)
 
                 Easy ->
-                    Random.int 1 15
+                    Random.pair (Random.int 1 15) (Random.constant False)
 
                 Medium ->
-                    Random.int 1 15
+                    Random.pair (Random.int 1 15) (Random.constant True)
 
                 Hard ->
-                    Random.int 1 15
+                    Random.pair (Random.int 1 15) (Random.uniform True [ False ])
 
                 Impossible ->
-                    Random.int 1 15
+                    Random.pair (Random.int 1 15) (Random.uniform True [ False ])
+
+        atoms =
+            case difficulty of
+                Trivial ->
+                    1
+
+                Easy ->
+                    1
+
+                Medium ->
+                    1
+
+                Hard ->
+                    2
+
+                Impossible ->
+                    3
 
         fragment =
-            Random.map (\a -> SquareRoot (Constant (a ^ 2))) n
+            nestedFragmentGenerator atoms
+                Addition
+                (conf
+                    |> Random.andThen (\( a, b ) -> splitSquare b (a ^ 2))
+                )
     in
     fragment
         |> Random.andThen toProblemGenerator
