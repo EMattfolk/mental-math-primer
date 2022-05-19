@@ -464,7 +464,9 @@ aboutView =
 leaderboardView : Model -> Html FrontendMsg
 leaderboardView model =
     vdiv []
-        [ ol []
+        [ h1 [] [ text "Leaderboard (score)" ]
+        , ol
+            [ css [ fontSize (em 2) ] ]
             (model.leaderboard
                 |> List.map (\v -> li [] [ text (String.fromInt v) ])
             )
