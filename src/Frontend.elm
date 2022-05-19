@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation exposing (Key, load)
 import Config exposing (Env(..))
 import Css exposing (..)
-import Html.Styled exposing (Attribute, Html, button, div, h1, h2, li, p, span, text, toUnstyled, ul)
+import Html.Styled exposing (Attribute, Html, button, div, h1, h2, li, ol, p, span, text, toUnstyled, ul)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (..)
 import Lamdera exposing (sendToBackend)
@@ -51,6 +51,7 @@ init url key =
       , clientId = ""
       , progress = emptyProgress
       , loggedIn = False
+      , leaderboard = []
       , navigation =
             { url = url
             , key = key
@@ -172,6 +173,9 @@ updateFromBackend msg model =
 
         SetLoggedIn loggedIn ->
             ( { model | loggedIn = loggedIn }, Cmd.none )
+
+        SetLeaderboard leaderboard ->
+            ( { model | leaderboard = leaderboard }, Cmd.none )
 
 
 applyProblemSpecs : Model -> (ProblemType -> Difficulty -> ToBackend) -> ToBackend
@@ -364,15 +368,18 @@ menuView model =
                 , difficultyButton Impossible [ text "Impossible" ]
                 ]
 
+        leaderboardButton =
+            themedButton [ onClick (PushRoute Leaderboard) ] [ text "Leaderboard" ]
+
+        aboutButton =
+            themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
+
         loginButton =
             if model.loggedIn then
                 themedButton [ onClick StartLogout ] [ text "Sign out" ]
 
             else
                 themedButton [ onClick (Load Auth.authorizeUrl) ] [ text "Sign in with Google" ]
-
-        aboutButton =
-            themedButton [ onClick (PushRoute About) ] [ text "What is this?" ]
 
         scoreText =
             div
@@ -397,6 +404,7 @@ menuView model =
         , problemSet Exponent "x²"
         , hdiv []
             [ scoreText
+            , leaderboardButton
             , aboutButton
             , loginButton
             ]
@@ -453,6 +461,16 @@ aboutView =
         ]
 
 
+leaderboardView : Model -> Html FrontendMsg
+leaderboardView model =
+    vdiv []
+        [ ol []
+            (model.leaderboard
+                |> List.map (\v -> li [] [ text (String.fromInt v) ])
+            )
+        ]
+
+
 view : Model -> Html FrontendMsg
 view model =
     vdiv
@@ -466,6 +484,9 @@ view model =
 
             About ->
                 aboutView
+
+            Leaderboard ->
+                leaderboardView model
 
             Authorize _ ->
                 menuView model

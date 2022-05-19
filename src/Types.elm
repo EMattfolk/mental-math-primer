@@ -21,6 +21,7 @@ type alias FrontendModel =
     , clientId : String
     , progress : Progress
     , loggedIn : Bool
+    , leaderboard : List Int
     , navigation :
         { url : Url
         , key : Key
@@ -57,6 +58,7 @@ type ToFrontend
     = SetProblem Problem
     | SetProgress Progress
     | SetLoggedIn Bool
+    | SetLeaderboard (List Int)
 
 
 type alias FrontendApp =
@@ -113,6 +115,7 @@ type Difficulty
 type Route
     = Home
     | About
+    | Leaderboard
     | Authorize (Maybe String)
     | ProblemPage ProblemType Difficulty
     | NotFound

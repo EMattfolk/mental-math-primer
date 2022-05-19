@@ -12,6 +12,7 @@ route =
     oneOf
         [ map Home top
         , map About (s "about")
+        , map Leaderboard (s "leaderboard")
         , map Authorize (s "authorize" <?> Query.string "access_token")
         , map (ProblemPage AddSub Trivial) (s "addition" </> s "trivial")
         , map (ProblemPage AddSub Easy) (s "addition" </> s "easy")
@@ -60,6 +61,9 @@ pushRoute key r =
 
             About ->
                 "about"
+
+            Leaderboard ->
+                "leaderboard"
 
             -- Should only be pushed by Auth0
             Authorize _ ->

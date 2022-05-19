@@ -4,7 +4,7 @@ import Auth
 import Dict
 import Http
 import Json.Decode exposing (field, string)
-import Lamdera exposing (ClientId, SessionId, sendToFrontend)
+import Lamdera exposing (ClientId, SessionId, broadcast, sendToFrontend)
 import Problem exposing (difficultyScore, emptyProgress, mergeProgress, randomProblem)
 import Random
 import Types exposing (..)
@@ -43,6 +43,8 @@ update msg model =
                     SetProgress (getProgress sessionId model)
                 , sendToFrontend clientId <|
                     SetLoggedIn (model.sessionToProgressId |> Dict.member sessionId)
+                , sendToFrontend clientId <|
+                    SetLeaderboard (getLeaderboard model)
                 ]
             )
 
@@ -80,6 +82,7 @@ update msg model =
                                                             currentProgress
                                                         )
                                             )
+                                        |> Dict.remove sessionId
                             }
 
                         Err _ ->
@@ -90,6 +93,7 @@ update msg model =
                 [ sendToFrontend clientId <|
                     SetProgress (getProgress sessionId newModel)
                 , sendToFrontend clientId <| SetLoggedIn True
+                , broadcast <| SetLeaderboard (getLeaderboard newModel)
                 ]
             )
 
@@ -183,8 +187,11 @@ updateFromFrontend sessionId clientId msg model =
                     { model | progress = newProgress }
             in
             ( newModel
-            , sendToFrontend clientId <|
-                SetProgress (getProgress sessionId newModel)
+            , Cmd.batch
+                [ sendToFrontend clientId <|
+                    SetProgress (getProgress sessionId newModel)
+                , broadcast <| SetLeaderboard (getLeaderboard newModel)
+                ]
             )
 
         PartialCompletion difficulty solvedProblems ->
@@ -217,8 +224,11 @@ updateFromFrontend sessionId clientId msg model =
                     { model | progress = newProgress }
             in
             ( newModel
-            , sendToFrontend clientId <|
-                SetProgress (getProgress sessionId newModel)
+            , Cmd.batch
+                [ sendToFrontend clientId <|
+                    SetProgress (getProgress sessionId newModel)
+                , broadcast <| SetLeaderboard (getLeaderboard newModel)
+                ]
             )
 
 
@@ -231,6 +241,15 @@ getProgress sessionId model =
                 |> Maybe.withDefault sessionId
             )
         |> Maybe.withDefault emptyProgress
+
+
+getLeaderboard : Model -> List Int
+getLeaderboard model =
+    model.progress
+        |> Dict.values
+        |> List.map .score
+        |> List.sortBy negate
+        |> List.take 10
 
 
 subscriptions : Model -> Sub BackendMsg
