@@ -1,5 +1,12 @@
 # TDDD27 Project: Mental Math Primer
 
+## Presentations
+
+- [Code screencast](https://drive.google.com/file/d/1VzJCOzWsBv6UrNUj4IDYTf24QzHjGP_O/view?usp=sharing)
+- [Project screencast](https://drive.google.com/file/d/1PFU6vCKnAs068dTJsqRQ-F5fzslctwaR/view?usp=sharing)
+
+They are quite long. Feel free to speed up the video!
+
 ## Functional specification
 
 This project is a single page web-app that would work similar to something like
