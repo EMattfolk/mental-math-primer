@@ -1,0 +1,19 @@
+on: [push]
+
+jobs:
+
+  build-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          sudo apt update
+          sudo apt install -yy nodejs
+          sudo apt install libtinfo5
+          npm ci
+          npx elm-tooling install
+          curl https://static.lamdera.com/bin/linux/lamdera -o lamdera
+          chmod a+x lamdera
+          ./lamdera make src/Frontend.elm
+          npx elm-test-rs
+          npx elm-format --validate src tests
